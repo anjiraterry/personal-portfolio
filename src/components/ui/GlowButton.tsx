@@ -12,16 +12,21 @@ interface GlowButtonProps {
   className?: string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
+  title?: string;
+  id?: string;
 }
 
 export function GlowButton({
   children,
   onClick,
+  href,
   variant = "primary",
   size = "md",
   className,
   disabled,
   type = "button",
+  title,
+  id,
 }: GlowButtonProps) {
   const sizes = {
     sm: "px-4 py-2 text-xs",
@@ -36,12 +41,16 @@ export function GlowButton({
     className
   );
 
+  const Component = href ? motion.a : motion.button;
+  const componentProps = href 
+    ? { href, download: true, title, id } 
+    : { type, onClick, disabled, title, id };
+
   if (variant === "primary") {
     return (
-      <motion.button
-        type={type}
-        onClick={onClick}
-        disabled={disabled}
+      // @ts-ignore
+      <Component
+        {...componentProps}
         whileHover={!disabled ? { scale: 1.02 } : undefined}
         whileTap={!disabled ? { scale: 0.98 } : undefined}
         className={base}
@@ -53,43 +62,40 @@ export function GlowButton({
           whileHover={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
         />
-        <span className="relative z-10 text-white">{children}</span>
-        {/* Glow effect */}
+        <span className="relative flex items-center justify-center z-10 text-white">{children}</span>
         <motion.span
           className="absolute inset-0 rounded-xl opacity-0 blur-md"
           style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}
           whileHover={{ opacity: 0.5 }}
           transition={{ duration: 0.3 }}
         />
-      </motion.button>
+      </Component>
     );
   }
 
   if (variant === "ghost") {
     return (
-      <motion.button
-        type={type}
-        onClick={onClick}
-        disabled={disabled}
+      // @ts-ignore
+      <Component
+        {...componentProps}
         whileHover={!disabled ? { scale: 1.02 } : undefined}
         whileTap={!disabled ? { scale: 0.98 } : undefined}
         className={cn(base, "bg-white/[0.04] border border-white/[0.08] text-white/70 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.12]")}
       >
         {children}
-      </motion.button>
+      </Component>
     );
   }
 
   return (
-    <motion.button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
+    // @ts-ignore
+    <Component
+      {...componentProps}
       whileHover={!disabled ? { scale: 1.02 } : undefined}
       whileTap={!disabled ? { scale: 0.98 } : undefined}
       className={cn(base, "bg-transparent border border-[rgba(0,167,157,0.3)] text-[rgb(0,200,188)] hover:bg-[rgba(0,167,157,0.08)] hover:border-[rgba(0,167,157,0.5)]")}
     >
       {children}
-    </motion.button>
+    </Component>
   );
 }

@@ -61,6 +61,9 @@ export function Navigation() {
                   {PERSONAL.initials}
                 </div>
               </Link>
+            </div>
+
+            <div className="flex items-center gap-2">
               {/* Desktop nav links */}
               <nav className="hidden md:flex items-center gap-0.5">
                 {NAV_LINKS.map((link) => {
@@ -90,16 +93,16 @@ export function Navigation() {
                   );
                 })}
               </nav>
-            </div>
 
-            {/* CTA */}
-            <Link
-              href="/contact"
-              className="hidden md:block px-4 py-1.5 text-[13px] font-semibold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,167,157,0.25)] hover:-translate-y-px"
-              style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}
-            >
-              Let&apos;s Talk
-            </Link>
+              {/* CTA */}
+              <Link
+                href="/contact"
+                className="hidden md:block px-4 py-1.5 text-[13px] font-semibold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,167,157,0.25)] hover:-translate-y-px"
+                style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}
+              >
+                Let&apos;s Talk
+              </Link>
+            </div>
 
             {/* Mobile toggle */}
             <button

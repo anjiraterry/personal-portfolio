@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { PROJECTS } from "@/data/portfolio";
+import { Briefcase } from "lucide-react";
 
 const CATEGORIES = ["All", "AI Infrastructure", "AI Agents", "Infrastructure", "AI Product", "SaaS Product"];
 
@@ -17,18 +18,27 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen pt-28 pb-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
+          className="mb-12"
         >
-          <SectionHeading
-            label="Selected Work"
-            title="Projects & Case Studies"
-            subtitle="A collection of AI systems, infrastructure tools, and products I've built in production."
-          />
+          <div className="flex items-center gap-3 mb-4">
+            <Briefcase size={16} style={{ color: "rgb(0,167,157)" }} />
+            <span className="text-xs font-semibold tracking-[0.15em] uppercase" style={{ color: "rgb(0,167,157)" }}>
+              Selected Work
+            </span>
+          </div>
+          <h1 className="font-display font-bold text-white/95 mb-4"
+            style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", letterSpacing: "-0.03em", lineHeight: "1.1" }}>
+            Projects & Case Studies
+          </h1>
+          <p className="text-white/45 text-base leading-relaxed max-w-xl">
+            A collection of AI systems, infrastructure tools, and products I&apos;ve built in production.
+          </p>
         </motion.div>
 
         {/* Filter tabs */}

@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, MapPin, Calendar, Code2, Brain, Layers } from "lucide-react";
+import { ArrowRight, MapPin, Calendar, Code2, Brain, Layers, Mail, Download, Check, Copy, User, Github } from "lucide-react";
 import { TechBadge } from "@/components/ui/TechBadge";
 import { BentoCard } from "@/components/bento/BentoCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ResumeDownloadButton } from "@/components/ui/ResumeDownloadButton";
 import { PERSONAL, EXPERIENCE, TECH_STACK, EXPERTISE } from "@/data/portfolio";
+import { cn } from "@/lib/utils";
 
 const VALUES = [
   { icon: Brain, title: "AI-First Thinking", description: "I approach every problem by asking: how can AI make this 10x better? Then I build the infrastructure to make it real." },
@@ -15,9 +18,20 @@ const VALUES = [
 ];
 
 export function AboutClient() {
+  const [activeTab, setActiveTab] = useState<"stack" | "expertise">("stack");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(PERSONAL.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {}
+  };
+
   return (
     <div className="min-h-screen pt-28 pb-24">
-      <div className="max-w-5xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
 
         {/* Header */}
         <motion.div
@@ -26,12 +40,15 @@ export function AboutClient() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="inline-block mb-4 text-xs font-semibold tracking-[0.15em] uppercase" style={{ color: "rgb(0,167,157)" }}>
-            About Me
-          </span>
-          <h1 className="font-display font-bold text-white/95 mb-6"
-            style={{ fontSize: "clamp(2.2rem, 5vw, 3.5rem)", letterSpacing: "-0.03em", lineHeight: "1.1" }}>
-            Building at the frontier<br />of AI engineering
+          <div className="flex items-center gap-3 mb-4">
+            <User size={16} style={{ color: "rgb(0,167,157)" }} />
+            <span className="text-xs font-semibold tracking-[0.15em] uppercase" style={{ color: "rgb(0,167,157)" }}>
+              About Me
+            </span>
+          </div>
+          <h1 className="font-display font-bold text-white mb-6"
+            style={{ fontSize: "clamp(2.2rem, 6vw, 3.8rem)", letterSpacing: "-0.03em", lineHeight: "1.1" }}>
+            Building at the frontier<br className="hidden md:block" /> of AI engineering
           </h1>
           <div className="flex items-center gap-4 text-sm text-white/35">
             <span className="flex items-center gap-1.5"><MapPin size={12} />{PERSONAL.location}</span>
@@ -48,39 +65,32 @@ export function AboutClient() {
         >
           {/* Profile visual */}
           <div className="lg:col-span-2">
-            <BentoCard gradient className="aspect-[4/5] flex flex-col justify-end overflow-hidden">
-              {/* Ambient visual */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                <div className="w-48 h-48 rounded-full"
-                  style={{ background: "radial-gradient(circle, rgb(0,167,157), transparent)" }} />
-              </div>
-              {/* Grid lines */}
-              <div className="absolute inset-0 opacity-[0.03]"
-                style={{
-                  backgroundImage: "linear-gradient(rgba(0,167,157,1) 1px, transparent 1px), linear-gradient(to right, rgba(0,167,157,1) 1px, transparent 1px)",
-                  backgroundSize: "30px 30px"
-                }} />
-              {/* Initials */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-display font-bold opacity-20"
-                  style={{ fontSize: "8rem", background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  {PERSONAL.initials}
-                </span>
-              </div>
-              {/* Bottom card */}
-              <div className="relative p-5 rounded-xl bg-black/20 border border-white/[0.06] backdrop-blur-sm">
-                <p className="font-display font-bold text-white/90 text-lg">{PERSONAL.name}</p>
-                <p className="text-white/40 text-sm">{PERSONAL.title}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="w-2 h-2 rounded-full bg-[rgb(0,200,188)] animate-pulse" />
-                  <span className="text-[11px] text-[rgb(0,200,188)]">Available</span>
-                </div>
+            <BentoCard noPadding className="aspect-[4/5] overflow-hidden group">
+              <img 
+                src="/terry.jpeg" 
+                alt={PERSONAL.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              {/* Social icons overlay - simplified */}
+              <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                <button 
+                  onClick={handleCopyEmail}
+                  className="p-2 rounded-lg bg-black/40 border border-white/10 backdrop-blur-md text-white/50 hover:text-white transition-all"
+                  title="Copy Email"
+                >
+                  {copied ? <Check size={16} className="text-[rgb(0,200,188)]" /> : <Mail size={16} />}
+                </button>
+                <ResumeDownloadButton variant="ghost" size="sm" className="bg-black/40 border-white/10 backdrop-blur-md text-white/50" iconOnly />
               </div>
             </BentoCard>
           </div>
 
           {/* Bio text */}
           <div className="lg:col-span-3 flex flex-col justify-center space-y-5">
+            <h2 className="font-display font-bold text-white mb-2"
+              style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", letterSpacing: "-0.02em" }}>
+              {PERSONAL.name}
+            </h2>
             <p className="text-white/65 text-base leading-relaxed">
               I'm an AI Systems Engineer with 7 years of experience building production systems at the intersection of AI, infrastructure, and product engineering.
             </p>
@@ -90,12 +100,16 @@ export function AboutClient() {
             <p className="text-white/50 text-base leading-relaxed">
               Currently, I'm most excited about autonomous AI agents, next-generation RAG architectures, and the emerging patterns for building truly AI-native products — not products with AI bolted on.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap gap-4">
               <Link href="/contact"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:shadow-[0_0_25px_rgba(0,167,157,0.3)] hover:-translate-y-px"
                 style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}>
                 Let's work together <ArrowRight size={14} />
               </Link>
+              <a href={PERSONAL.github} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white hover:-translate-y-px">
+                <Github size={14} /> GitHub
+              </a>
             </div>
           </div>
         </motion.div>
@@ -167,12 +181,49 @@ export function AboutClient() {
 
         {/* Tech Stack */}
         <div>
-          <SectionHeading label="Technologies" title="Stack I work with" />
-          <BentoCard>
-            <div className="flex flex-wrap gap-2">
-              {TECH_STACK.map((tech, i) => (
-                <TechBadge key={tech.name} name={tech.name} category={tech.category} index={i} />
-              ))}
+          <div className="flex items-center justify-between mb-8">
+            <SectionHeading label="Technologies" title="Stack I work with" className="mb-0" />
+            
+            <div className="flex p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+              <button
+                onClick={() => setActiveTab("stack")}
+                className={cn(
+                  "px-4 py-1.5 text-xs font-bold rounded-lg transition-all",
+                  activeTab === "stack"
+                    ? "bg-[rgb(0,167,157)] text-white shadow-lg shadow-[rgb(0,167,157,0.2)]"
+                    : "text-white/30 hover:text-white/50",
+                )}
+              >
+                STACK
+              </button>
+              <button
+                onClick={() => setActiveTab("expertise")}
+                className={cn(
+                  "px-4 py-1.5 text-xs font-bold rounded-lg transition-all",
+                  activeTab === "expertise"
+                    ? "bg-[rgb(0,167,157)] text-white shadow-lg shadow-[rgb(0,167,157,0.2)]"
+                    : "text-white/30 hover:text-white/50",
+                )}
+              >
+                EXPERTISE
+              </button>
+            </div>
+          </div>
+
+          <BentoCard className="p-8">
+            <div className="flex flex-wrap gap-3">
+              {activeTab === "stack"
+                ? TECH_STACK.map((tech, i) => (
+                    <TechBadge key={tech.name} name={tech.name} category={tech.category} index={i} />
+                  ))
+                : EXPERTISE.map((item, i) => (
+                    <TechBadge
+                      key={item}
+                      name={item}
+                      index={i}
+                      variant="teal"
+                    />
+                  ))}
             </div>
           </BentoCard>
         </div>

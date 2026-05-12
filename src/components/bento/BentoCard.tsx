@@ -35,7 +35,7 @@ export function BentoCard({
           ? "bg-gradient-to-br from-[rgba(0,87,79,0.2)] to-[rgba(0,167,157,0.08)]"
           : "bg-[rgba(14,18,22,0.8)]",
         "backdrop-blur-xl",
-        !noPadding && "p-6",
+        !noPadding && "p-4 md:p-6",
         glowOnHover && "hover:border-[rgba(0,167,157,0.15)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,167,157,0.08)]",
         className
       )}

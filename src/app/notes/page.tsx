@@ -24,7 +24,7 @@ export default function NotesPage() {
 
   return (
     <div className="min-h-screen pt-28 pb-24">
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}

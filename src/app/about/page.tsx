@@ -8,7 +8,7 @@ import { AboutClient } from "./AboutClient";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about Kael Soren — AI Systems Engineer, SaaS builder, and AI product architect.",
+  description: "Learn about Terry Agbo — AI Systems Engineer, SaaS builder, and AI product architect.",
 };
 
 export default function AboutPage() {

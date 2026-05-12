@@ -9,10 +9,7 @@ export function ExperienceTimeline() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div
-      className="overflow-y-auto pr-1"
-      style={{ maxHeight: 320, scrollbarWidth: "thin", scrollbarColor: "rgba(0,167,157,0.2) transparent" }}
-    >
+    <div className="pr-1">
         <div className="flex flex-col">
           {EXPERIENCE.map((exp, i) => {
             const isOpen = openIndex === i;

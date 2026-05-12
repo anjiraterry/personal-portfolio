@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: NotePageProps): Promise<Metad
   const { slug } = await params;
   const note = NOTES.find((n) => n.slug === slug);
   return {
-    title: note ? `${note.title} | Kael Soren` : "Note Not Found",
+    title: note ? `${note.title} | Terry Agbo` : "Note Not Found",
   };
 }
 
@@ -30,7 +30,7 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
 
   return (
     <div className="min-h-screen pt-32 pb-24">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Back Button */}
         <Link href="/notes" className="inline-flex items-center gap-2 text-white/30 hover:text-[rgb(0,167,157)] transition-colors mb-12 group">
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />

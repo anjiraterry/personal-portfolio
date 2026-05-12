@@ -21,8 +21,8 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: {
-    default: "Kael Soren — AI Systems Engineer",
-    template: "%s | Kael Soren",
+    default: "Terry Agbo — AI Systems Engineer",
+    template: "%s | Terry Agbo",
   },
   description:
     "AI Systems Engineer building production-grade AI-native products, scalable systems, and modern web experiences. Specializing in LLMs, RAG pipelines, and multi-agent architectures.",
@@ -35,21 +35,21 @@ export const metadata: Metadata = {
     "Next.js",
     "TypeScript",
   ],
-  authors: [{ name: "Kael Soren" }],
+  authors: [{ name: "Terry Agbo" }],
   openGraph: {
     type: "website",
     locale: "en_US",
     url: process.env.NEXT_PUBLIC_SITE_URL,
-    title: "Kael Soren — AI Systems Engineer",
+    title: "Terry Agbo — AI Systems Engineer",
     description:
       "Building production-grade AI-native products, scalable systems, and modern web experiences.",
-    siteName: "Kael Soren",
+    siteName: "Terry Agbo",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kael Soren — AI Systems Engineer",
+    title: "Terry Agbo — AI Systems Engineer",
     description: "Building AI-native products, scalable systems, and modern web experiences.",
-    creator: "@kaelsoren",
+    creator: "@anjiraterry",
   },
 };
 
@@ -80,7 +80,6 @@ export default function RootLayout({
         <div className="relative z-10 flex flex-col min-h-screen">
           <Navigation />
           <main className="flex-1">{children}</main>
-          <Footer />
         </div>
       </body>
     </html>
