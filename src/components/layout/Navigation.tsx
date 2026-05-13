@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PERSONAL } from "@/data/portfolio";
+import { useAuth } from "@/components/admin/AdminProvider";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -22,6 +23,7 @@ export function Navigation() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -94,14 +96,27 @@ export function Navigation() {
                 })}
               </nav>
 
-              {/* CTA */}
-              <Link
-                href="/contact"
-                className="hidden md:block px-4 py-1.5 text-[13px] font-semibold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,167,157,0.25)] hover:-translate-y-px"
-                style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}
-              >
-                Let&apos;s Talk
-              </Link>
+              {/* CTA + Admin */}
+              <div className="hidden md:flex items-center gap-2">
+                {isAuthenticated && (
+                  <button
+                    onClick={logout}
+                    title="Logout"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium rounded-full text-[rgb(0,167,157)] bg-[rgb(0,167,157,0.08)] border border-[rgb(0,167,157,0.2)] hover:bg-[rgb(0,167,157,0.15)] transition-all"
+                  >
+                  
+                    <span className="text-[11px] font-bold uppercase tracking-wider">Admin</span>
+                    <LogOut size={12}  />
+                  </button>
+                )}
+                <Link
+                  href="/contact"
+                  className="px-4 py-1.5 text-[13px] font-semibold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,167,157,0.25)] hover:-translate-y-px"
+                  style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}
+                >
+                  Let&apos;s Talk
+                </Link>
+              </div>
             </div>
 
             {/* Mobile toggle */}

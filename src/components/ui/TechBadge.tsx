@@ -2,15 +2,17 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 interface TechBadgeProps {
   name: string;
   category?: string;
   index?: number;
   variant?: "default" | "teal" | "outlined";
+  onDelete?: () => void;
 }
 
-export function TechBadge({ name, category = "default", index = 0, variant = "default" }: TechBadgeProps) {
+export function TechBadge({ name, category = "default", index = 0, variant = "default", onDelete }: TechBadgeProps) {
   // Make all badges neutral as requested
   const bg = "rgba(255,255,255,0.05)";
 
@@ -21,14 +23,26 @@ export function TechBadge({ name, category = "default", index = 0, variant = "de
       transition={{ duration: 0.3, delay: index * 0.04 }}
       whileHover={{ scale: 1.05, y: -1 }}
       className={cn(
-        "inline-flex items-center px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider cursor-default transition-all",
+        "inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider cursor-default transition-all group/badge",
         "border border-white/[0.06] text-white/40 hover:text-white/80 hover:bg-white/[0.08] hover:border-white/[0.12]",
         variant === "teal" && "border-[rgba(0,167,157,0.15)] text-[rgb(0,180,170)]",
-        variant === "outlined" && "bg-transparent border-white/10"
+        variant === "outlined" && "bg-transparent border-white/10",
+        onDelete && "pr-2"
       )}
       style={{ background: variant === "default" ? bg : undefined }}
     >
       {name}
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="opacity-0 group-hover/badge:opacity-100 transition-all hover:text-red-400 -mr-1"
+        >
+          <X size={12} />
+        </button>
+      )}
     </motion.span>
   );
 }

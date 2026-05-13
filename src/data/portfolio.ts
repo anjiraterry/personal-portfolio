@@ -391,3 +391,9 @@ export const NOTES = [
     tags: ["Prompts", "LLMs", "Production", "Patterns"],
   },
 ];
+
+export const PHILOSOPHY = [
+  { icon: "Brain", title: "AI-First Thinking", description: "I approach every problem by asking: how can AI make this 10x better? Then I build the infrastructure to make it real." },
+  { icon: "Code2", title: "Systems Mindset", description: "Good AI products need great engineering foundations. I obsess over reliability, observability, and maintainability." },
+  { icon: "Layers", title: "Product Sensibility", description: "I've shipped and grown SaaS products solo. I understand what users need and how to build toward that north star." },
+];
