@@ -10,7 +10,7 @@ import { ProjectCard } from "@/components/ui/ProjectCard";
 import { deleteProject } from "@/app/actions/portfolio";
 import { toast } from "sonner";
 
-const CATEGORIES = ["All", "AI Infrastructure", "AI Agents", "Infrastructure", "AI Product", "SaaS Product"];
+const CATEGORIES = ["All", "Ecommerce", "Marketplace", "Infrastructure", "AI Product", "SaaS Product", "FinTech"];
 
 export default function ProjectsPage() {
   const { data, refreshData } = usePortfolio();
@@ -30,11 +30,14 @@ export default function ProjectsPage() {
       label: project.title,
       onConfirm: async () => {
         try {
-          await deleteProject(project.id);
+          const res = await deleteProject(project.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete project");
+          }
           await refreshData();
           toast.success("Project deleted successfully");
-        } catch (err) {
-          toast.error("Failed to delete project");
+        } catch (err: any) {
+          toast.error("Failed to delete project", { description: err.message });
         }
       }
     });

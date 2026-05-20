@@ -5,23 +5,32 @@ import { updatePersonal } from "@/app/actions/portfolio";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useFormDraft } from "./useFormDraft";
 
 export const PersonalForm = ({ onClose }: { onClose: () => void }) => {
   const { data, refreshData } = usePortfolio();
-  const [formData, setFormData] = useState(data.personal);
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_personal",
+    data.personal,
+    true
+  );
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await updatePersonal(formData);
+      const res = await updatePersonal(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to update profile");
+      }
+      clearDraft();
       await refreshData();
       toast.success("Profile updated");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to update profile");
+      toast.error("Failed to update profile", { description: err.message });
     } finally {
       setLoading(false);
     }

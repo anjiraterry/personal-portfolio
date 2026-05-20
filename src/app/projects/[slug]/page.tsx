@@ -87,7 +87,7 @@ export default function ProjectDetailPage({ params }: Props) {
         {/* Hero image */}
         <EditableSection onEdit={() => openAdmin("project", project)} label="Hero Image">
           <div className="relative aspect-[16/7] rounded-2xl overflow-hidden mb-12 border border-white/[0.06]">
-            <Image src={project.image} alt={project.title} fill className="object-cover" unoptimized />
+            <Image src={project.image} alt={project.title} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-cover" unoptimized />
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,8,10,0.4)] to-transparent" />
           </div>
         </EditableSection>

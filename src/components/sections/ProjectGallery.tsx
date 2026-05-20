@@ -12,6 +12,7 @@ const statusColors: Record<string, { bg: string; text: string }> = {
   Beta:         { bg: "rgba(255,190,40,0.15)",  text: "rgb(255,205,70)" },
   "Open Source":{ bg: "rgba(110,155,255,0.15)", text: "rgb(140,175,255)" },
   Shipped:      { bg: "rgba(100,230,130,0.12)", text: "rgb(110,230,140)" },
+  Development:  { bg: "rgb(20,24,28)",          text: "rgb(251,191,36)" },
 };
 
 export function ProjectGallery() {
@@ -89,8 +90,12 @@ function GalleryCard({
           src={project.image}
           alt={project.title}
           fill
-          className="object-cover"
-          style={{ filter: hovered ? "brightness(0.35)" : "brightness(0.55)" }}
+          sizes="(max-width: 768px) 280px, 320px"
+          className="object-cover object-top origin-top transition-all duration-700"
+          style={{ 
+            filter: hovered ? "brightness(0.35)" : "brightness(0.55)",
+            transform: hovered ? "scale(1.05)" : "scale(1)"
+          }}
         />
         {/* Gradient overlay */}
         <div
@@ -106,8 +111,18 @@ function GalleryCard({
       {/* Status pill — top left */}
       <div className="absolute top-3 left-3 z-20">
         <span
-          className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide"
-          style={{ background: colors.bg, color: colors.text }}
+          className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide backdrop-blur-md border"
+          style={{ 
+            background: colors.bg, 
+            color: colors.text,
+            borderColor: project.status === "Development" 
+              ? "rgba(245,158,11,0.35)" 
+              : project.status === "Beta" 
+                ? "rgba(255,200,50,0.35)" 
+                : project.status === "Production"
+                  ? "rgba(0,167,157,0.35)"
+                  : "rgba(255,255,255,0.08)"
+          }}
         >
           {project.status}
         </span>

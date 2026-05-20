@@ -6,27 +6,39 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { CustomSelect } from "../CustomSelect";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_TECH = {
+  name: "",
+  category: "frontend"
+};
 
 export const TechStackForm = ({ item, onClose }: { item?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(item || {
-    name: "",
-    category: "frontend"
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_tech_item",
+    item || DEFAULT_TECH,
+    !item?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertTechItem(formData);
+      const res = await upsertTechItem(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save tech item");
+      }
+      clearDraft();
       await refreshData();
-      toast.success("Tech item saved");
+      toast.success("Tech item saved successfully");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save tech item");
+      toast.error("Failed to save tech item", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -39,12 +51,15 @@ export const TechStackForm = ({ item, onClose }: { item?: any, onClose: () => vo
       label: item.name,
       onConfirm: async () => {
         try {
-          await deleteTechItem(item.id);
+          const res = await deleteTechItem(item.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete tech item");
+          }
           await refreshData();
-          toast.success("Tech item deleted");
+          toast.success("Tech item deleted successfully");
           onClose();
-        } catch (err) {
-          toast.error("Failed to delete tech item");
+        } catch (err: any) {
+          toast.error("Failed to delete tech item", { description: err.message });
         }
       }
     });
@@ -66,18 +81,18 @@ export const TechStackForm = ({ item, onClose }: { item?: any, onClose: () => vo
 
       <div className="space-y-1.5">
         <label className="text-[10px] font-bold uppercase tracking-widest text-white/30">Category</label>
-        <select
+        <CustomSelect
           value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          className="admin-select"
-        >
-          <option value="frontend">Frontend</option>
-          <option value="backend">Backend</option>
-          <option value="language">Language</option>
-          <option value="database">Database</option>
-          <option value="ai">AI</option>
-          <option value="other">Other</option>
-        </select>
+          onChange={(val) => setFormData({ ...formData, category: val })}
+          options={[
+            { value: "frontend", label: "Frontend" },
+            { value: "backend", label: "Backend" },
+            { value: "language", label: "Language" },
+            { value: "database", label: "Database" },
+            { value: "ai", label: "AI" },
+            { value: "other", label: "Other" }
+          ]}
+        />
       </div>
 
       <div className="flex justify-between items-center pt-4 border-t border-white/10">

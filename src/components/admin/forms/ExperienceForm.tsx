@@ -6,33 +6,46 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { toast } from "sonner";
 import { Loader2, Trash2, Briefcase, ListChecks, Code2, Plus, X } from "lucide-react";
+import { TagInput } from "../TagInput";
+import { CustomSelect } from "../CustomSelect";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_EXPERIENCE = {
+  company: "",
+  role: "",
+  period: "",
+  type: "Full-time",
+  location: "",
+  description: "",
+  achievements: [],
+  tech: []
+};
 
 export const ExperienceForm = ({ experience, onClose }: { experience?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(experience || {
-    company: "",
-    role: "",
-    period: "",
-    type: "Full-time",
-    location: "",
-    description: "",
-    achievements: [],
-    tech: []
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_experience",
+    experience || DEFAULT_EXPERIENCE,
+    !experience?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertExperience(formData);
+      const res = await upsertExperience(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save experience");
+      }
+      clearDraft();
       await refreshData();
-      toast.success("Experience saved");
+      toast.success("Experience saved successfully");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save experience");
+      toast.error("Failed to save experience", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -42,15 +55,18 @@ export const ExperienceForm = ({ experience, onClose }: { experience?: any, onCl
     if (!experience?.id) return;
     confirmDelete({
       title: "Delete Experience",
-      label: experience.company,
+      label: `${experience.role} at ${experience.company}`,
       onConfirm: async () => {
         try {
-          await deleteExperience(experience.id);
+          const res = await deleteExperience(experience.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete experience");
+          }
           await refreshData();
-          toast.success("Experience deleted");
+          toast.success("Experience deleted successfully");
           onClose();
-        } catch (err) {
-          toast.error("Failed to delete experience");
+        } catch (err: any) {
+          toast.error("Failed to delete experience", { description: err.message });
         }
       }
     });
@@ -102,15 +118,15 @@ export const ExperienceForm = ({ experience, onClose }: { experience?: any, onCl
           </div>
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Job Type</label>
-            <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-              className="admin-select"
-            >
-              <option value="Full-time">Full-time</option>
-              <option value="Contract">Contract</option>
-              <option value="Freelance">Freelance</option>
-            </select>
+            <CustomSelect
+              value={formData.type || "Full-time"}
+              onChange={(val) => setFormData({ ...formData, type: val })}
+              options={[
+                { value: "Full-time", label: "Full-time" },
+                { value: "Contract", label: "Contract" },
+                { value: "Freelance", label: "Freelance" }
+              ]}
+            />
           </div>
         </div>
 
@@ -172,35 +188,11 @@ export const ExperienceForm = ({ experience, onClose }: { experience?: any, onCl
         </div>
         
         <div className="space-y-1.5">
-          <input
-            type="text"
-            placeholder="Add technology (press enter)..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const val = e.currentTarget.value.trim();
-                if (val && !formData.tech?.includes(val)) {
-                  setFormData({ ...formData, tech: [...(formData.tech || []), val] });
-                  e.currentTarget.value = '';
-                }
-              }
-            }}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+          <TagInput
+            tags={formData.tech || []}
+            onChange={(tech) => setFormData({ ...formData, tech })}
+            placeholder="Add technology..."
           />
-          <div className="flex flex-wrap gap-2 mt-3">
-            {(formData.tech || []).map((t: string) => (
-              <span key={t} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgb(0,167,157,0.1)] border border-[rgb(0,167,157,0.2)] text-[rgb(0,180,170)] text-[10px] font-bold uppercase tracking-wider">
-                {t}
-                <button 
-                  type="button"
-                  onClick={() => setFormData({ ...formData, tech: formData.tech.filter((item: string) => item !== t) })}
-                  className="hover:text-red-400 transition-colors"
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            ))}
-          </div>
         </div>
       </section>
 

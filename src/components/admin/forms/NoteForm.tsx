@@ -7,42 +7,49 @@ import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2, BookOpen, Calendar, Clock, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "../ImageUpload";
+import { TagInput } from "../TagInput";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_NOTE = {
+  title: "",
+  slug: "",
+  date: new Date().toISOString().split('T')[0],
+  category: "",
+  read_time: "5 min",
+  excerpt: "",
+  image: "",
+  tags: []
+};
 
 export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(() => {
-    if (!note) return {
-      title: "",
-      slug: "",
-      date: new Date().toISOString().split('T')[0],
-      category: "",
-      read_time: "5 min",
-      excerpt: "",
-      image: "",
-      tags: []
-    };
-    
-    const { readTime, ...rest } = note;
-    return {
-      ...rest,
-      read_time: note.read_time || readTime || "5 min",
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_note",
+    note ? {
+      ...note,
+      read_time: note.read_time || note.readTime || "5 min",
       image: note.image || ""
-    };
-  });
+    } : DEFAULT_NOTE,
+    !note?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertNote(formData);
+      const res = await upsertNote(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save note");
+      }
+      clearDraft();
       await refreshData();
       toast.success("Note saved successfully");
       onClose();
     } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save note");
+      toast.error("Failed to save note", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -55,12 +62,15 @@ export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void })
       label: note.title,
       onConfirm: async () => {
         try {
-          await deleteNote(note.id);
+          const res = await deleteNote(note.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete note");
+          }
           await refreshData();
           toast.success("Note deleted successfully");
           onClose();
         } catch (err: any) {
-          toast.error("Failed to delete note");
+          toast.error("Failed to delete note", { description: err.message });
         }
       }
     });
@@ -145,13 +155,11 @@ export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void })
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1 flex items-center gap-1"><Tag size={10} /> Tags (comma separated)</label>
-          <input
-            type="text"
-            value={(formData.tags || []).join(", ")}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value.split(",").map((t: string) => t.trim()).filter(Boolean) })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
-            placeholder="RAG, LLM, Infrastructure..."
+          <TagInput
+            tags={formData.tags || []}
+            onChange={(tags) => setFormData({ ...formData, tags })}
+            placeholder="e.g. RAG, LLM, Infrastructure..."
+            label="Tags"
           />
         </div>
       </div>

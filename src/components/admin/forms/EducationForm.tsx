@@ -6,28 +6,39 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_EDUCATION = {
+  school: "",
+  degree: "",
+  year: ""
+};
 
 export const EducationForm = ({ education, onClose }: { education?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(education || {
-    school: "",
-    degree: "",
-    year: ""
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_education",
+    education || DEFAULT_EDUCATION,
+    !education?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertEducation(formData);
+      const res = await upsertEducation(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save education");
+      }
+      clearDraft();
       await refreshData();
-      toast.success("Education saved");
+      toast.success("Education saved successfully");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save education");
+      toast.error("Failed to save education", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -40,12 +51,15 @@ export const EducationForm = ({ education, onClose }: { education?: any, onClose
       label: education.school,
       onConfirm: async () => {
         try {
-          await deleteEducation(education.id);
+          const res = await deleteEducation(education.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete education");
+          }
           await refreshData();
-          toast.success("Education deleted");
+          toast.success("Education deleted successfully");
           onClose();
-        } catch (err) {
-          toast.error("Failed to delete education");
+        } catch (err: any) {
+          toast.error("Failed to delete education", { description: err.message });
         }
       }
     });

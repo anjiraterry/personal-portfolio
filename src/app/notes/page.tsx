@@ -9,6 +9,7 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { EditableSection } from "@/components/admin/EditableSection";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { formatDate } from "@/lib/utils";
+import { toast } from "sonner";
 
 const CATEGORIES = ["All", "AI Infrastructure", "AI Agents", "RAG Systems", "Engineering", "Stack", "Prompt Engineering"];
 
@@ -128,9 +129,16 @@ export default function NotesPage() {
                     label: note.title,
                     onConfirm: async () => {
                       const { deleteNote } = await import("@/app/actions/portfolio");
-                      await deleteNote(note.id);
-                      await refreshData();
-                      toast.success("Note deleted");
+                      try {
+                        const res = await deleteNote(note.id);
+                        if (res && !res.success) {
+                          throw new Error(res.error || "Failed to delete note");
+                        }
+                        await refreshData();
+                        toast.success("Note deleted successfully");
+                      } catch (err: any) {
+                        toast.error("Failed to delete note", { description: err.message });
+                      }
                     }
                   });
                 }}

@@ -7,27 +7,39 @@ import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2, Target, Lightbulb, Image as ImageIcon, Code2, X } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "../ImageUpload";
+import { TagInput } from "../TagInput";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_FOCUS = {
+  title: "",
+  status: "Active",
+  description: "",
+  progress: 50,
+  is_current: false,
+  image: "",
+  tags: [],
+  insights: []
+};
 
 export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(area || {
-    title: "",
-    status: "Active",
-    description: "",
-    progress: 50,
-    is_current: false,
-    image: "",
-    tags: [],
-    insights: []
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_focus_area",
+    area || DEFAULT_FOCUS,
+    !area?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertFocusArea(formData);
+      const res = await upsertFocusArea(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save focus area");
+      }
+      clearDraft();
       await refreshData();
       toast.success("Focus area saved successfully");
       onClose();
@@ -48,12 +60,15 @@ export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }
       label: area.title,
       onConfirm: async () => {
         try {
-          await deleteFocusArea(area.id);
+          const res = await deleteFocusArea(area.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete focus area");
+          }
           await refreshData();
           toast.success("Focus area deleted successfully");
           onClose();
         } catch (err: any) {
-          toast.error("Failed to delete focus area");
+          toast.error("Failed to delete focus area", { description: err.message });
         }
       }
     });
@@ -143,34 +158,12 @@ export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1 flex items-center gap-2">
-            <Code2 size={12} /> Technologies
-          </label>
-          <input
-            type="text"
-            placeholder="Add tech (press enter)..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const val = e.currentTarget.value.trim();
-                if (val && !formData.tech?.includes(val)) {
-                  setFormData({ ...formData, tech: [...(formData.tech || []), val] });
-                  e.currentTarget.value = '';
-                }
-              }
-            }}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+          <TagInput
+            tags={formData.tech || []}
+            onChange={(tech) => setFormData({ ...formData, tech })}
+            placeholder="Add technology..."
+            label="Technologies"
           />
-          <div className="flex flex-wrap gap-2 mt-2">
-            {(formData.tech || []).map((t: string) => (
-              <span key={t} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgb(0,167,157,0.1)] border border-[rgb(0,167,157,0.2)] text-[rgb(0,180,170)] text-[10px] font-bold uppercase tracking-wider">
-                {t}
-                <button type="button" onClick={() => setFormData({ ...formData, tech: formData.tech.filter((i: any) => i !== t) })}>
-                  <X size={10} />
-                </button>
-              </span>
-            ))}
-          </div>
         </div>
 
         <div className="space-y-1.5">

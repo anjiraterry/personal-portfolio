@@ -6,28 +6,39 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2, Heart, Type, AlignLeft, Info } from "lucide-react";
 import { toast } from "sonner";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_PHILOSOPHY = {
+  title: "",
+  description: "",
+  icon: "Brain"
+};
 
 export const PhilosophyForm = ({ item, onClose }: { item?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(item || {
-    title: "",
-    description: "",
-    icon: "Brain"
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_philosophy",
+    item || DEFAULT_PHILOSOPHY,
+    !item?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertPhilosophy(formData);
+      const res = await upsertPhilosophy(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save philosophy");
+      }
+      clearDraft();
       await refreshData();
-      toast.success("Philosophy saved");
+      toast.success("Philosophy saved successfully");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save philosophy");
+      toast.error("Failed to save philosophy", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -40,12 +51,15 @@ export const PhilosophyForm = ({ item, onClose }: { item?: any, onClose: () => v
       label: item.title,
       onConfirm: async () => {
         try {
-          await deletePhilosophy(item.id);
+          const res = await deletePhilosophy(item.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete value");
+          }
           await refreshData();
-          toast.success("Value deleted");
+          toast.success("Value deleted successfully");
           onClose();
-        } catch (err) {
-          toast.error("Failed to delete");
+        } catch (err: any) {
+          toast.error("Failed to delete value", { description: err.message });
         }
       }
     });

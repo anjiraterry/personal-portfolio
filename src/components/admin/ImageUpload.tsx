@@ -38,8 +38,11 @@ export const ImageUpload = ({ value, onChange, label, className }: ImageUploadPr
     formData.append("bucket", "portfolio");
 
     try {
-      const { publicUrl } = await uploadImage(formData);
-      onChange(publicUrl);
+      const res = await uploadImage(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to upload image");
+      }
+      onChange(res.publicUrl!);
       toast.success("Image uploaded successfully");
     } catch (err: any) {
       console.error(err);

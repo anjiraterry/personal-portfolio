@@ -36,7 +36,8 @@ import {
   deleteTechItem, 
   deleteExpertiseItem, 
   deleteNote,
-  deleteProject
+  deleteProject,
+  deleteFocusArea
 } from "@/app/actions/portfolio";
 import { toast } from "sonner";
 import { useAuth } from "@/components/admin/AdminProvider";
@@ -52,11 +53,14 @@ export default function HomePage() {
       label: itemLabel || label,
       onConfirm: async () => {
         try {
-          await action(id);
+          const res = await action(id);
+          if (res && !res.success) {
+            throw new Error(res.error || `Failed to delete ${label}`);
+          }
           await refreshData();
           toast.success(`${label} deleted successfully`);
-        } catch (err) {
-          toast.error(`Failed to delete ${label}`);
+        } catch (err: any) {
+          toast.error(`Failed to delete ${label}`, { description: err.message });
         }
       }
     });
@@ -188,7 +192,7 @@ export default function HomePage() {
           {/* Headshot Card */}
           <div className="lg:col-span-1 h-[400px] md:h-[450px] lg:h-full">
             <BentoCard noPadding className="h-full group overflow-hidden">
-              <img src="/terry.jpeg" alt="Headshot" className="w-full h-full object-cover scale-115 transition-all duration-700 group-hover:scale-120" />
+              <img src="/terry.jpeg" alt="Headshot" className="w-full h-full object-cover scale-125 transition-all duration-700 group-hover:scale-120" />
             </BentoCard>
           </div>
 
@@ -346,7 +350,7 @@ export default function HomePage() {
           <div className="md:col-span-1 lg:col-span-2 h-[200px] md:h-[400px] lg:h-full">
             <EditableSection 
               onEdit={() => openAdmin("focus", FOCUS_AREAS.find((f: any) => f.is_current) || FOCUS_AREAS[0])} 
-              onDelete={() => handleDelete(deleteProject, (FOCUS_AREAS.find((f: any) => f.is_current) || FOCUS_AREAS[0]).id, "Focus Area")}
+              onDelete={() => handleDelete(deleteFocusArea, (FOCUS_AREAS.find((f: any) => f.is_current) || FOCUS_AREAS[0]).id, "Focus Area")}
               onAdd={() => openAdmin("focus")} 
               label="Focus" 
               isList

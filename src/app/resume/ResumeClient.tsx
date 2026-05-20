@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, MapPin, Github } from "lucide-react";
+import { Mail, MapPin, Github, Plus } from "lucide-react";
 import { ResumeDownloadButton } from "@/components/ui/ResumeDownloadButton";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { EditableSection } from "@/components/admin/EditableSection";
 import { useAuth } from "@/components/admin/AdminProvider";
-import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 export function ResumeClient() {
   const { data, refreshData } = usePortfolio();

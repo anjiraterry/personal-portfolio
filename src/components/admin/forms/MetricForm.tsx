@@ -6,29 +6,40 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_METRIC = {
+  label: "",
+  value: "",
+  suffix: "",
+  icon: "Layers2"
+};
 
 export const MetricForm = ({ metric, onClose }: { metric?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(metric || {
-    label: "",
-    value: "",
-    suffix: "",
-    icon: "Layers2"
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_metric",
+    metric || DEFAULT_METRIC,
+    !metric?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertMetric(formData);
+      const res = await upsertMetric(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save metric");
+      }
+      clearDraft();
       await refreshData();
-      toast.success("Metric saved");
+      toast.success("Metric saved successfully");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save metric");
+      toast.error("Failed to save metric", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -41,12 +52,15 @@ export const MetricForm = ({ metric, onClose }: { metric?: any, onClose: () => v
       label: metric.label,
       onConfirm: async () => {
         try {
-          await deleteMetric(metric.id);
+          const res = await deleteMetric(metric.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete metric");
+          }
           await refreshData();
-          toast.success("Metric deleted");
+          toast.success("Metric deleted successfully");
           onClose();
-        } catch (err) {
-          toast.error("Failed to delete metric");
+        } catch (err: any) {
+          toast.error("Failed to delete metric", { description: err.message });
         }
       }
     });

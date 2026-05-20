@@ -6,26 +6,37 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useFormDraft } from "./useFormDraft";
+
+const DEFAULT_EXPERTISE = {
+  name: ""
+};
 
 export const ExpertiseForm = ({ item, onClose }: { item?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(item || {
-    name: ""
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_expertise",
+    item || DEFAULT_EXPERTISE,
+    !item?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertExpertiseItem(formData);
+      const res = await upsertExpertiseItem(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save expertise item");
+      }
+      clearDraft();
       await refreshData();
-      toast.success("Expertise item saved");
+      toast.success("Expertise item saved successfully");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save expertise item");
+      toast.error("Failed to save expertise item", { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -38,12 +49,15 @@ export const ExpertiseForm = ({ item, onClose }: { item?: any, onClose: () => vo
       label: item.name,
       onConfirm: async () => {
         try {
-          await deleteExpertiseItem(item.id);
+          const res = await deleteExpertiseItem(item.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete expertise item");
+          }
           await refreshData();
-          toast.success("Expertise item deleted");
+          toast.success("Expertise item deleted successfully");
           onClose();
-        } catch (err) {
-          toast.error("Failed to delete expertise item");
+        } catch (err: any) {
+          toast.error("Failed to delete expertise item", { description: err.message });
         }
       }
     });

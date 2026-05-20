@@ -7,37 +7,50 @@ import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Plus, Trash2, Globe, Github as GithubIcon, Layout, Settings, Trophy, ListChecks, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "../ImageUpload";
+import { TagInput } from "../TagInput";
+import { CustomSelect } from "../CustomSelect";
+import { useFormDraft } from "./useFormDraft";
 
 const STATUS_OPTIONS = ["Idea", "Architecting", "Development", "Production", "Funding", "Scale"];
+
+const DEFAULT_PROJECT = {
+  title: "",
+  slug: "",
+  subtitle: "",
+  category: "",
+  status: "Production",
+  year: new Date().getFullYear().toString(),
+  description: "",
+  overview: "",
+  architecture: "",
+  challenges: [],
+  metrics: [],
+  image: "",
+  tech: [],
+  featured: false,
+  github: "",
+  demo: ""
+};
 
 export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () => void }) => {
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(project || {
-    title: "",
-    slug: "",
-    subtitle: "",
-    category: "",
-    status: "Production",
-    year: new Date().getFullYear().toString(),
-    description: "",
-    overview: "",
-    architecture: "",
-    challenges: [],
-    metrics: [],
-    image: "",
-    tech: [],
-    featured: false,
-    github: "",
-    demo: ""
-  });
+  const [formData, setFormData, clearDraft] = useFormDraft(
+    "draft_project", 
+    project || DEFAULT_PROJECT, 
+    !project?.id
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await upsertProject(formData);
+      const res = await upsertProject(formData);
+      if (res && !res.success) {
+        throw new Error(res.error || "Failed to save project");
+      }
+      clearDraft();
       await refreshData();
       toast.success("Project saved successfully");
       onClose();
@@ -56,12 +69,15 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
       label: project.title,
       onConfirm: async () => {
         try {
-          await deleteProject(project.id);
+          const res = await deleteProject(project.id);
+          if (res && !res.success) {
+            throw new Error(res.error || "Failed to delete project");
+          }
           await refreshData();
           toast.success("Project deleted successfully");
           onClose();
         } catch (err: any) {
-          toast.error("Failed to delete project");
+          toast.error("Failed to delete project", { description: err.message });
         }
       }
     });
@@ -116,13 +132,11 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
           </div>
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Current Status</label>
-            <select
+            <CustomSelect
               value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="admin-select"
-            >
-              {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-            </select>
+              onChange={(val) => setFormData({ ...formData, status: val })}
+              options={STATUS_OPTIONS.map(opt => ({ value: opt, label: opt }))}
+            />
           </div>
         </div>
 
@@ -134,6 +148,17 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
             onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
             placeholder="Brief one-liner about the project"
             className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Card Description</label>
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Brief paragraph summary shown on the project card..."
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[80px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none"
+            required
           />
         </div>
       </section>
@@ -213,15 +238,11 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
       <section className="space-y-4 p-5 rounded-2xl bg-white/[0.02] border border-white/5">
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1 ml-1">
-              <Settings size={12} /> Tech Stack
-            </div>
-            <input
-              type="text"
-              value={formData.tech?.join(", ") || ""}
-              onChange={(e) => setFormData({ ...formData, tech: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
-              placeholder="Next.js, AI, Supabase..."
-              className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+            <TagInput
+              tags={formData.tech || []}
+              onChange={(tech) => setFormData({ ...formData, tech })}
+              placeholder="e.g. Next.js, AI, Supabase..."
+              label="Tech Stack"
             />
           </div>
           
