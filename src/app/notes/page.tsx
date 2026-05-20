@@ -11,7 +11,16 @@ import { useAuth } from "@/components/admin/AdminProvider";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 
-const CATEGORIES = ["All", "AI Infrastructure", "AI Agents", "RAG Systems", "Engineering", "Stack", "Prompt Engineering"];
+const CATEGORIES = [
+  "All",
+  "AI Infrastructure",
+  "AI Agents",
+  "RAG Systems",
+  "Engineering",
+  "Stack",
+  "Prompt Engineering",
+  "MCP Servers",
+];
 
 export default function NotesPage() {
   const [query, setQuery] = useState("");
@@ -27,17 +36,18 @@ export default function NotesPage() {
   };
 
   const filtered = NOTES.filter((n: any) => {
-    const matchesQuery = query === "" ||
+    const matchesQuery =
+      query === "" ||
       n.title.toLowerCase().includes(query.toLowerCase()) ||
       (n.excerpt || "").toLowerCase().includes(query.toLowerCase());
-    const matchesCat = activeCategory === "All" || n.category === activeCategory;
+    const matchesCat =
+      activeCategory === "All" || n.category === activeCategory;
     return matchesQuery && matchesCat;
   });
 
   return (
     <div className="min-h-screen pt-28 pb-24">
       <div className="max-w-7xl mx-auto px-6">
-
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,15 +56,24 @@ export default function NotesPage() {
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="inline-block mb-4 text-xs font-semibold tracking-[0.15em] uppercase" style={{ color: "rgb(0,167,157)" }}>
+              <span
+                className="inline-block mb-4 text-xs font-semibold tracking-[0.15em] uppercase"
+                style={{ color: "rgb(0,167,157)" }}
+              >
                 Writing
               </span>
-              <h1 className="font-display font-bold text-white/95 mb-3"
-                style={{ fontSize: "clamp(2rem, 5vw, 3rem)", letterSpacing: "-0.03em" }}>
+              <h1
+                className="font-display font-bold text-white/95 mb-3"
+                style={{
+                  fontSize: "clamp(2rem, 5vw, 3rem)",
+                  letterSpacing: "-0.03em",
+                }}
+              >
                 Notes
               </h1>
               <p className="text-white/40 text-base">
-                Technical insights on AI systems, SaaS architecture, and engineering.
+                Technical insights on AI systems, SaaS architecture, and
+                engineering.
               </p>
             </div>
             {isAuthenticated && (
@@ -75,7 +94,10 @@ export default function NotesPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="relative mb-5"
         >
-          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+          <Search
+            size={15}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25"
+          />
           <input
             type="text"
             placeholder="Search notes..."
@@ -102,9 +124,18 @@ export default function NotesPage() {
               onClick={() => setActiveCategory(cat)}
               className="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all"
               style={{
-                background: activeCategory === cat ? "rgba(0,167,157,0.15)" : "rgba(255,255,255,0.04)",
-                border: activeCategory === cat ? "1px solid rgba(0,167,157,0.3)" : "1px solid rgba(255,255,255,0.06)",
-                color: activeCategory === cat ? "rgb(0,200,188)" : "rgba(255,255,255,0.40)",
+                background:
+                  activeCategory === cat
+                    ? "rgba(0,167,157,0.15)"
+                    : "rgba(255,255,255,0.04)",
+                border:
+                  activeCategory === cat
+                    ? "1px solid rgba(0,167,157,0.3)"
+                    : "1px solid rgba(255,255,255,0.06)",
+                color:
+                  activeCategory === cat
+                    ? "rgb(0,200,188)"
+                    : "rgba(255,255,255,0.40)",
               }}
             >
               {cat}
@@ -128,7 +159,8 @@ export default function NotesPage() {
                     title: "Delete Note",
                     label: note.title,
                     onConfirm: async () => {
-                      const { deleteNote } = await import("@/app/actions/portfolio");
+                      const { deleteNote } =
+                        await import("@/app/actions/portfolio");
                       try {
                         const res = await deleteNote(note.id);
                         if (res && !res.success) {
@@ -137,9 +169,11 @@ export default function NotesPage() {
                         await refreshData();
                         toast.success("Note deleted successfully");
                       } catch (err: any) {
-                        toast.error("Failed to delete note", { description: err.message });
+                        toast.error("Failed to delete note", {
+                          description: err.message,
+                        });
                       }
-                    }
+                    },
                   });
                 }}
                 label="Note"
@@ -150,8 +184,13 @@ export default function NotesPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
-                            style={{ background: "rgba(0,167,157,0.1)", color: "rgb(0,200,188)" }}>
+                          <span
+                            className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
+                            style={{
+                              background: "rgba(0,167,157,0.1)",
+                              color: "rgb(0,200,188)",
+                            }}
+                          >
                             {note.category}
                           </span>
                           <span className="flex items-center gap-1 text-[10px] text-white/25">
@@ -162,18 +201,28 @@ export default function NotesPage() {
                         <h3 className="font-display font-bold text-white/85 text-base mb-2 group-hover:text-white transition-colors leading-snug">
                           {note.title}
                         </h3>
-                        <p className="text-white/40 text-sm leading-relaxed truncate-2">{note.excerpt}</p>
+                        <p className="text-white/40 text-sm leading-relaxed truncate-2">
+                          {note.excerpt}
+                        </p>
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {(note.tags || []).map((tag: string) => (
-                            <span key={tag} className="px-2 py-0.5 rounded text-[10px] font-medium text-white/30 bg-white/[0.04] border border-white/[0.05]">
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 rounded text-[10px] font-medium text-white/30 bg-white/[0.04] border border-white/[0.05]"
+                            >
                               {tag}
                             </span>
                           ))}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                        <ArrowUpRight size={15} className="text-white/20 group-hover:text-[rgb(0,167,157)] transition-colors" />
-                        <span className="text-[11px] text-white/25 whitespace-nowrap">{formatDate(note.date)}</span>
+                        <ArrowUpRight
+                          size={15}
+                          className="text-white/20 group-hover:text-[rgb(0,167,157)] transition-colors"
+                        />
+                        <span className="text-[11px] text-white/25 whitespace-nowrap">
+                          {formatDate(note.date)}
+                        </span>
                       </div>
                     </div>
                   </BentoCard>
