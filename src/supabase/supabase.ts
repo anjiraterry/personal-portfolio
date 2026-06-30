@@ -7,6 +7,12 @@ function getSupabaseClient(): SupabaseClient {
   if (!_supabase) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    // DEBUG — remove once auth is working
+    console.log("[Supabase] URL:", url ?? "MISSING");
+    console.log("[Supabase] Key prefix:", key ? key.slice(0, 20) + "..." : "MISSING");
+    console.log("[Supabase] Key looks like JWT:", key?.startsWith("eyJ") ?? false);
+
     if (!url || !key) {
       throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
     }

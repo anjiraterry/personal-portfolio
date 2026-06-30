@@ -2,6 +2,8 @@
 
 import { createServerSupabaseClient } from "@/supabase/server";
 import * as staticData from "@/data/portfolio";
+import { TWITTER_POSTS } from "@/data/social/twitter";
+import { LINKEDIN_POSTS } from "@/data/social/linkedin";
 const {
   PERSONAL,
   METRICS,
@@ -84,9 +86,33 @@ export async function syncPortfolioToSupabase() {
     );
     if (notesErr) throw notesErr;
 
+    // 10. Sync Social Posts (Seed if empty)
+    await syncSocialPosts(supabase);
+
     return { success: true };
   } catch (err: any) {
     console.error("Migration failed:", err);
     return { success: false, error: err.message };
+  }
+}
+
+async function syncSocialPosts(supabase: any) {
+  const { data: existing, error: checkErr } = await supabase.from("social_posts").select("id").limit(1);
+  if (checkErr) throw checkErr;
+
+  // Only seed if table is empty
+  if (!existing || existing.length === 0) {
+    const twitterPosts = TWITTER_POSTS.map(p => ({ ...p, platform: "twitter" as const }));
+    const linkedInPosts = LINKEDIN_POSTS.map(p => ({ ...p, platform: "linkedin" as const }));
+    const seedPosts = [...twitterPosts, ...linkedInPosts];
+
+    if (seedPosts.length === 0) {
+      console.log("No social posts defined in src/data/social/ — skipping seed.");
+      return;
+    }
+
+    const { error: seedErr } = await supabase.from("social_posts").insert(seedPosts);
+    if (seedErr) throw seedErr;
+    console.log(`Seeded ${seedPosts.length} social posts (${twitterPosts.length} Twitter, ${linkedInPosts.length} LinkedIn).`);
   }
 }

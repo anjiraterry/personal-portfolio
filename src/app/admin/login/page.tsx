@@ -24,19 +24,34 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log("[Login] Attempting signInWithPassword...");
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      // DEBUG — remove once auth is working
+      console.log("[Login] Response data:", data);
+      console.log("[Login] Response error:", error);
+
       if (error) throw error;
       router.push("/");
     } catch (err: any) {
+      // DEBUG — full error details
+      console.error("[Login] Caught error:", {
+        name: err?.name,
+        message: err?.message,
+        status: err?.status,
+        code: err?.code,
+        stack: err?.stack,
+        raw: err,
+      });
       setError(err.message || "Failed to log in");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleSync = async () => {
     if (!confirm("This will overwrite your Supabase data with the static data from portfolio.ts. Continue?")) return;

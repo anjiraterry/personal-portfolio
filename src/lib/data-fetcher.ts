@@ -36,3 +36,18 @@ export async function getPortfolioData() {
     philosophy: (personal as any)?.philosophy || [],
   };
 }
+
+export async function fetchSocialPosts(serverSupabase?: any) {
+  const client = serverSupabase || supabase;
+  const { data, error } = await client
+    .from("social_posts")
+    .select("*")
+    .order("scheduled_date", { ascending: true })
+    .order("scheduled_time", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching social posts:", error);
+    return [];
+  }
+  return data || [];
+}
