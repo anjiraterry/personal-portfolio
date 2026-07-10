@@ -78,26 +78,32 @@ export async function bulkGeneratePosts(platform: string, count: number) {
 }
 
 export async function triggerScheduler() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!supabaseUrl || !serviceRoleKey) throw new Error("Missing Supabase env vars for edge function trigger");
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !serviceRoleKey) {
+      return { success: false, error: "Missing Supabase env vars for edge function trigger" };
+    }
 
-  const res = await fetch(`${supabaseUrl}/functions/v1/social-scheduler`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${serviceRoleKey}`
-    },
-    body: JSON.stringify({})
-  });
+    const res = await fetch(`${supabaseUrl}/functions/v1/social-scheduler`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${serviceRoleKey}`
+      },
+      body: JSON.stringify({})
+    });
 
-  if (!res.ok) {
-    throw new Error(`Edge function failed: ${await res.text()}`);
+    if (!res.ok) {
+      return { success: false, error: `Edge function failed: ${await res.text()}` };
+    }
+    
+    revalidatePath("/admin/social");
+    return { success: true, data: await res.json() };
+  } catch (err: any) {
+    return { success: false, error: err.message };
   }
-  
-  revalidatePath("/admin/social");
-  return res.json();
 }
 
 export async function toggleSchedulerPause(isPaused: boolean) {

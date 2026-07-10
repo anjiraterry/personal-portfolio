@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { triggerScheduler, toggleSchedulerPause, seedTwitterPosts, seedLinkedInPosts } from "@/app/actions/social";
 import { DayCard } from "../widget/DayCard";
@@ -28,6 +28,25 @@ export default function SocialManagerSection({
   const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState<"grid" | "calendar">("grid");
 
+  useEffect(() => {
+    const saved = sessionStorage.getItem("social_admin_page");
+    if (saved !== null) {
+      setPage(parseInt(saved, 10));
+    } else {
+      const baseStartDate = new Date("2026-06-11T00:00:00");
+      const diffTime = new Date().getTime() - baseStartDate.getTime();
+      if (diffTime > 0) {
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        setPage(Math.max(0, Math.floor(diffDays / 7)));
+      }
+    }
+  }, []);
+
+  const handleSetPage = (p: number) => {
+    setPage(p);
+    sessionStorage.setItem("social_admin_page", p.toString());
+  };
+
   // Group posts by platform and date
   const groupedPosts = initialPosts.reduce((acc, post) => {
     if (!acc[post.platform]) acc[post.platform] = {};
@@ -50,7 +69,12 @@ export default function SocialManagerSection({
   const handleTrigger = async () => {
     setTriggering(true);
     try {
-      await triggerScheduler();
+      const result = await triggerScheduler();
+      if (result && !result.success) {
+        alert(result.error || "Failed to trigger scheduler");
+      } else if (result && result.success) {
+        alert("Scheduler triggered successfully!");
+      }
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -209,7 +233,7 @@ export default function SocialManagerSection({
         <Tabs.Content value="twitter" className="space-y-6">
            {viewMode === "grid" ? (
              <>
-               <PaginationControls page={page} setPage={setPage} />
+               <PaginationControls page={page} setPage={handleSetPage} startDate={startDate} />
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                  {days.map(d => (
                    <DayCard key={d} dateStr={d} posts={groupedPosts.twitter[d] || []} platform="twitter" />
@@ -224,7 +248,7 @@ export default function SocialManagerSection({
         <Tabs.Content value="linkedin" className="space-y-6">
            {viewMode === "grid" ? (
              <>
-               <PaginationControls page={page} setPage={setPage} />
+               <PaginationControls page={page} setPage={handleSetPage} startDate={startDate} />
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                  {days.map(d => (
                    <DayCard key={d} dateStr={d} posts={groupedPosts.linkedin[d] || []} platform="linkedin" />
@@ -240,9 +264,15 @@ export default function SocialManagerSection({
   );
 }
 
-function PaginationControls({ page, setPage }: { page: number, setPage: (p: number) => void }) {
+function PaginationControls({ page, setPage, startDate }: { page: number, setPage: (p: number) => void, startDate: Date }) {
   // Cap at ~13 weeks (Sept 11 2026 roughly 90 days / 7 = 12 pages)
   const maxPage = 12; 
+  
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  
+  const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <div className="flex justify-between items-center bg-white/[0.01] border border-white/5 rounded-lg p-2">
@@ -253,7 +283,10 @@ function PaginationControls({ page, setPage }: { page: number, setPage: (p: numb
       >
         <ChevronLeft size={18} />
       </button>
-      <span className="text-xs font-bold tracking-widest text-white/50">WEEK {page + 1}</span>
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-xs font-bold tracking-widest text-white/50">WEEK {page + 1}</span>
+        <span className="text-[10px] text-white/30 uppercase tracking-wider mt-0.5">{startStr} - {endStr}</span>
+      </div>
       <button 
         onClick={() => setPage(Math.min(maxPage, page + 1))}
         disabled={page === maxPage}

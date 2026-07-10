@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { PostSlide } from "./PostSlide";
+import { cn } from "@/lib/utils";
 
 export function DayCard({ 
   dateStr, 
@@ -58,11 +59,19 @@ export function DayCard({
   const dateObj = new Date(dateStr);
   const formatter = new Intl.DateTimeFormat("en-US", { weekday: 'short', month: 'short', day: 'numeric' });
   const formattedDate = formatter.format(dateObj); // e.g., "Thu, Jun 12"
+  
+  const isToday = dateStr === new Date().toISOString().split("T")[0];
 
   return (
-    <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-4 flex flex-col h-[400px]">
+    <div className={cn(
+      "border rounded-2xl p-4 flex flex-col h-[400px]",
+      isToday ? "bg-[rgb(0,167,157,0.05)] border-[rgb(0,167,157,0.3)] shadow-[0_0_15px_rgba(0,167,157,0.1)]" : "bg-white/[0.01] border-white/5"
+    )}>
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-white/80">{formattedDate}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className={cn("font-bold", isToday ? "text-[rgb(0,167,157)]" : "text-white/80")}>{formattedDate}</h3>
+          {isToday && <span className="text-[9px] uppercase tracking-wider bg-[rgb(0,167,157,0.2)] text-[rgb(0,167,157)] px-1.5 py-0.5 rounded-sm font-bold">Today</span>}
+        </div>
         <button 
           onClick={handleAddPost}
           className="p-1.5 rounded-full bg-white/5 hover:bg-[rgb(0,167,157)] text-white/50 hover:text-white transition-colors"

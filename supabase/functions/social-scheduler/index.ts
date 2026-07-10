@@ -104,6 +104,13 @@ serve(async (req) => {
                try {
                   const scheduleAt = new Date(`${post.scheduled_date}T${post.scheduled_time}Z`);
                   
+                  // If the scheduled time is less than 15 minutes from now, adjust to 15 minutes from now
+                  const now = new Date();
+                  let finalDueAt = scheduleAt;
+                  if (scheduleAt.getTime() < now.getTime() + 15 * 60000) {
+                    finalDueAt = new Date(now.getTime() + 15 * 60000);
+                  }
+                  
                   const pushQuery = `
                     mutation CreatePost($text: String!, $channelId: ChannelId!, $dueAt: DateTime!) {
                       createPost(
@@ -138,7 +145,7 @@ serve(async (req) => {
                       variables: {
                         text: post.content,
                         channelId: platform.profileId,
-                        dueAt: scheduleAt.toISOString()
+                        dueAt: finalDueAt.toISOString()
                       }
                     })
                   });
