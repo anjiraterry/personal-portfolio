@@ -106,11 +106,11 @@ serve(async (req) => {
                try {
                   const scheduleAt = new Date(`${post.scheduled_date}T${post.scheduled_time}Z`);
                   
-                  // If the scheduled time is less than 15 minutes from now, adjust to 15 mins from now + 1hr stagger per missed post
+                  // If the scheduled time is less than 15 minutes from now, adjust to 15 mins from now + 6hr stagger per missed post
                   const now = new Date();
                   let finalDueAt = scheduleAt;
                   if (scheduleAt.getTime() < now.getTime() + 15 * 60000) {
-                    finalDueAt = new Date(now.getTime() + 15 * 60000 + (pastPostOffset * 60 * 60000));
+                    finalDueAt = new Date(now.getTime() + 15 * 60000 + (pastPostOffset * 6 * 60 * 60000));
                     pastPostOffset++;
                   }
                   
