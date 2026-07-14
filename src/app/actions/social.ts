@@ -127,7 +127,11 @@ export async function toggleSchedulerPause(isPaused: boolean) {
 
 export async function seedTwitterPosts() {
   const supabase = createServerSupabaseClient();
-  const { data: existing } = await supabase.from("social_posts").select("id").limit(1);
+  const { data: existing } = await supabase.from("social_posts")
+    .select("id")
+    .eq("platform", "twitter")
+    .eq("status", "scheduled")
+    .limit(1);
   
   if (!existing || existing.length === 0) {
     let currentDate = new Date();
@@ -159,7 +163,11 @@ export async function seedTwitterPosts() {
 
 export async function seedLinkedInPosts() {
   const supabase = createServerSupabaseClient();
-  const { data: existing } = await supabase.from("social_posts").select("id").eq('platform', 'linkedin').limit(1);
+  const { data: existing } = await supabase.from("social_posts")
+    .select("id")
+    .eq('platform', 'linkedin')
+    .eq('status', 'scheduled')
+    .limit(1);
   
   if (!existing || existing.length === 0) {
     let currentDate = new Date();
