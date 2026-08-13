@@ -74,9 +74,15 @@ export function ResumeClient() {
               </h2>
               <div className="space-y-8">
                 {EXPERIENCE.map((exp: any, i: number) => (
-                  <EditableSection 
-                    key={i} 
-                    onEdit={() => openAdmin("experience", exp)} 
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                  >
+                    <EditableSection 
+                      onEdit={() => openAdmin("experience", exp)} 
                     onDelete={() => {
                       confirmDelete({
                         title: "Delete Experience",
@@ -110,6 +116,7 @@ export function ResumeClient() {
                       </ul>
                     </div>
                   </EditableSection>
+                  </motion.div>
                 ))}
               </div>
             </section>
@@ -121,9 +128,22 @@ export function ResumeClient() {
               </h2>
               <div className="space-y-6">
                 {EDUCATION.map((edu: any, i: number) => (
-                  <EditableSection 
-                    key={i} 
-                    onEdit={() => openAdmin("education", edu)} 
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                  >
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                  >
+                    <EditableSection 
+                      onEdit={() => openAdmin("education", edu)} 
                     onDelete={() => {
                       confirmDelete({
                         title: "Delete Education",
@@ -148,6 +168,7 @@ export function ResumeClient() {
                       <p className="text-white/50">{edu.degree}</p>
                     </div>
                   </EditableSection>
+                  </motion.div>
                 ))}
               </div>
             </section>

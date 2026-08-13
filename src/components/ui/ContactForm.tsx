@@ -51,9 +51,20 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card p-8 md:p-10 space-y-6">
+    <motion.form 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      onSubmit={handleSubmit} 
+      className="glass-card p-8 md:p-10 space-y-6"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="space-y-2"
+        >
           <label htmlFor="name" className="text-xs font-bold text-white/30 uppercase tracking-widest ml-1">
             Full Name
           </label>
@@ -66,8 +77,13 @@ export function ContactForm() {
             placeholder="John Doe"
             className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all"
           />
-        </div>
-        <div className="space-y-2">
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="space-y-2"
+        >
           <label htmlFor="email" className="text-xs font-bold text-white/30 uppercase tracking-widest ml-1">
             Email Address
           </label>
@@ -80,10 +96,15 @@ export function ContactForm() {
             placeholder="john@example.com"
             className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all"
           />
-        </div>
+        </motion.div>
       </div>
 
-      <div className="space-y-2">
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="space-y-2"
+      >
         <label htmlFor="subject" className="text-xs font-bold text-white/30 uppercase tracking-widest ml-1">
           Subject
         </label>
@@ -135,6 +156,7 @@ export function ContactForm() {
       <p className="text-center text-[10px] text-white/20 uppercase tracking-wider">
         By sending, you agree to the intergalactic protocol of polite communication.
       </p>
-    </form>
+      </motion.div>
+    </motion.form>
   );
 }

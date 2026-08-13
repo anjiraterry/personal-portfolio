@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils";
 import { createServerSupabaseClient } from "@/supabase/server";
 import { ShareButtons } from "@/components/ui/ShareButtons";
 import { NoteAdminActions } from "@/components/admin/NoteAdminActions";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 interface NotePageProps {
   params: Promise<{ slug: string }>;
@@ -65,7 +66,7 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
 
   return (
     <div className="min-h-screen pt-32 pb-24">
-      <div className="max-w-7xl mx-auto px-6">
+      <PageTransition className="max-w-7xl mx-auto px-6">
         {/* Back Button */}
         <Link href="/notes" className="inline-flex items-center gap-2 text-white/30 hover:text-[rgb(0,167,157)] transition-colors mb-12 group">
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />

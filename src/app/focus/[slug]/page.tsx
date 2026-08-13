@@ -4,6 +4,7 @@ import { ArrowLeft, Target, Calendar, Download, MonitorPlay, FlaskConical, Exter
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/supabase/server";
 import { EditFocusButton } from "./EditFocusButton";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 interface FocusPageProps {
   params: Promise<{ slug: string }>;
@@ -39,7 +40,7 @@ export default async function FocusDetailPage({ params }: FocusPageProps) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[rgb(0,167,157)] rounded-full mix-blend-screen filter blur-[120px] opacity-[0.03]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6">
+      <PageTransition className="max-w-7xl mx-auto px-6">
         
         {/* Navigation & Admin */}
         <div className="flex items-center justify-between mb-12">
@@ -116,7 +117,7 @@ export default async function FocusDetailPage({ params }: FocusPageProps) {
             <p className="text-white/40">The full paper for this focus area has not been published yet.</p>
           </div>
         )}
-      </div>
+      </PageTransition>
     </div>
   );
 }
