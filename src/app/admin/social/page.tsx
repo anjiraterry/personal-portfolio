@@ -3,9 +3,12 @@ import { fetchSocialPosts } from "@/lib/data-fetcher";
 import { fetchSocialTokens, fetchSchedulerLogs } from "@/lib/social-fetcher";
 import { createServerSupabaseClient } from "@/supabase/server";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
-
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Social Media Manager",
+  description: "Admin section for managing social media automation.",
+};export const dynamic = "force-dynamic";
 
 export default async function SocialAdminPage() {
   const supabase = createServerSupabaseClient();

@@ -21,7 +21,7 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: {
-    default: "Terry Agbo — AI Systems Engineer",
+    default: "Terry Agbo : System Thinker",
     template: "%s | Terry Agbo",
   },
   description:
@@ -40,16 +40,18 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: process.env.NEXT_PUBLIC_SITE_URL,
-    title: "Terry Agbo — AI Systems Engineer",
+    title: "Terry Agbo : System Thinker",
     description:
       "Building production-grade AI-native products, scalable systems, and modern web experiences.",
     siteName: "Terry Agbo",
+    images: ["/terry.jpeg"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Terry Agbo — AI Systems Engineer",
+    title: "Terry Agbo : System Thinker",
     description: "Building AI-native products, scalable systems, and modern web experiences.",
     creator: "@anjiraterry",
+    images: ["/terry.jpeg"],
   },
 };
 

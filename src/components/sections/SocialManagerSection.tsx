@@ -33,12 +33,7 @@ export default function SocialManagerSection({
     if (saved !== null) {
       setPage(parseInt(saved, 10));
     } else {
-      const baseStartDate = new Date("2026-06-11T00:00:00");
-      const diffTime = new Date().getTime() - baseStartDate.getTime();
-      if (diffTime > 0) {
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        setPage(Math.max(0, Math.floor(diffDays / 7)));
-      }
+      setPage(0); // Start at current week
     }
   }, []);
 
@@ -56,8 +51,10 @@ export default function SocialManagerSection({
   }, { twitter: {}, linkedin: {} });
 
   // Generate 7 days for the current page
-  // Start from June 11 2026 as requested
-  const startDate = new Date("2026-06-11T00:00:00");
+  // Start from today (beginning of the current week/period)
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0); // start of day
+  // If we want it to always align to Sunday or similar, we could: startDate.setDate(startDate.getDate() - startDate.getDay());
   startDate.setDate(startDate.getDate() + (page * 7));
 
   const days = Array.from({ length: 7 }).map((_, i) => {
@@ -241,7 +238,12 @@ export default function SocialManagerSection({
                </div>
              </>
            ) : (
-             <CalendarMonthView posts={groupedPosts.twitter} />
+             <>
+               <div className="mb-4">
+                 <PaginationControls page={page} setPage={handleSetPage} startDate={startDate} isMonthView />
+               </div>
+               <CalendarMonthView posts={groupedPosts.twitter} pageOffset={page} />
+             </>
            )}
         </Tabs.Content>
 
@@ -256,7 +258,12 @@ export default function SocialManagerSection({
                </div>
              </>
            ) : (
-             <CalendarMonthView posts={groupedPosts.linkedin} />
+             <>
+               <div className="mb-4">
+                 <PaginationControls page={page} setPage={handleSetPage} startDate={startDate} isMonthView />
+               </div>
+               <CalendarMonthView posts={groupedPosts.linkedin} pageOffset={page} />
+             </>
            )}
         </Tabs.Content>
       </Tabs.Root>
@@ -264,33 +271,34 @@ export default function SocialManagerSection({
   );
 }
 
-function PaginationControls({ page, setPage, startDate }: { page: number, setPage: (p: number) => void, startDate: Date }) {
-  // Cap at ~13 weeks (Sept 11 2026 roughly 90 days / 7 = 12 pages)
-  const maxPage = 12; 
+function PaginationControls({ page, setPage, startDate, isMonthView }: { page: number, setPage: (p: number) => void, startDate: Date, isMonthView?: boolean }) {
   
   const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + 6);
+  if (isMonthView) {
+    endDate.setMonth(startDate.getMonth() + 1);
+    endDate.setDate(0); // last day of month
+  } else {
+    endDate.setDate(startDate.getDate() + 6);
+  }
   
-  const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: isMonthView ? 'numeric' : undefined });
+  const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: isMonthView ? 'numeric' : undefined });
 
   return (
     <div className="flex justify-between items-center bg-white/[0.01] border border-white/5 rounded-lg p-2">
       <button 
-        onClick={() => setPage(Math.max(0, page - 1))}
-        disabled={page === 0}
-        className="p-2 text-white/50 hover:text-white disabled:opacity-30 transition-colors"
+        onClick={() => setPage(page - 1)}
+        className="p-2 text-white/50 hover:text-white transition-colors"
       >
         <ChevronLeft size={18} />
       </button>
       <div className="flex flex-col items-center justify-center">
-        <span className="text-xs font-bold tracking-widest text-white/50">WEEK {page + 1}</span>
+        <span className="text-xs font-bold tracking-widest text-white/50">{page === 0 ? "CURRENT WEEK" : page > 0 ? `WEEK +${page}` : `WEEK ${page}`}</span>
         <span className="text-[10px] text-white/30 uppercase tracking-wider mt-0.5">{startStr} - {endStr}</span>
       </div>
       <button 
-        onClick={() => setPage(Math.min(maxPage, page + 1))}
-        disabled={page === maxPage}
-        className="p-2 text-white/50 hover:text-white disabled:opacity-30 transition-colors"
+        onClick={() => setPage(page + 1)}
+        className="p-2 text-white/50 hover:text-white transition-colors"
       >
         <ChevronRight size={18} />
       </button>
@@ -298,22 +306,32 @@ function PaginationControls({ page, setPage, startDate }: { page: number, setPag
   );
 }
 
-function CalendarMonthView({ posts }: { posts: Record<string, any[]> }) {
-  // July 2026 starting point since that's when most posts are scheduled
-  const startDate = new Date("2026-07-01T00:00:00");
-  const daysInMonth = 31; // July has 31 days
+function CalendarMonthView({ posts, pageOffset }: { posts: Record<string, any[]>, pageOffset: number }) {
+  // Current month offset based on the "page" where each page could represent a week,
+  // but for a month view it makes sense to offset by months instead.
+  // We'll let pageOffset represent months offset from current.
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() + pageOffset);
+  startDate.setDate(1); // 1st of the month
+  startDate.setHours(0, 0, 0, 0);
+  const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
   const startDayOfWeek = startDate.getDay(); // 0 is Sunday
   
+  const monthName = startDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
   const blanks = Array.from({ length: startDayOfWeek }).map((_, i) => i);
   const days = Array.from({ length: daysInMonth }).map((_, i) => {
     const d = new Date(startDate);
     d.setDate(d.getDate() + i);
-    return d.toISOString().split("T")[0];
+    // Pad month and day to match ISO string formatting (YYYY-MM-DD)
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
   });
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-      <div className="mb-4 text-white/60 font-bold uppercase tracking-widest text-sm px-2">July 2026</div>
+      <div className="mb-4 text-white/60 font-bold uppercase tracking-widest text-sm px-2">{monthName}</div>
       <div className="grid grid-cols-7 gap-2 mb-2">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
           <div key={day} className="text-center text-xs font-bold text-white/30 uppercase">{day}</div>
@@ -328,11 +346,30 @@ function CalendarMonthView({ posts }: { posts: Record<string, any[]> }) {
             <div key={d} className="h-24 bg-white/[0.03] rounded-lg border border-white/5 p-2 flex flex-col hover:border-white/20 transition-colors overflow-hidden">
               <span className="text-white/40 text-xs font-bold">{dayNum}</span>
               <div className="mt-auto space-y-1">
-                {dayPosts.slice(0,2).map(p => (
-                  <div key={p.id} className="text-[10px] truncate bg-[rgb(0,167,157,0.15)] text-[rgb(0,167,157)] rounded px-1.5 py-0.5 border border-[rgb(0,167,157,0.3)]">
-                    {p.status === 'sent' ? '✓ ' : ''}{p.content}
-                  </div>
-                ))}
+                {dayPosts.slice(0,2).map(p => {
+                  let timeStr = "";
+                  if (p.status === 'sent' && p.sent_at) {
+                    timeStr = new Date(p.sent_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                  } else {
+                    // scheduled time or default
+                    timeStr = p.scheduled_time ? p.scheduled_time.slice(0, 5) : "";
+                  }
+                  
+                  return (
+                    <div key={p.id} className={cn(
+                      "text-[10px] truncate rounded px-1.5 py-0.5 border flex flex-col",
+                      p.status === 'sent' 
+                        ? "bg-[rgb(0,167,157,0.15)] text-[rgb(0,167,157)] border-[rgb(0,167,157,0.3)]"
+                        : "bg-white/[0.05] text-white/60 border-white/10"
+                    )}>
+                      <span className="font-bold opacity-70 flex justify-between w-full">
+                        {p.status === 'sent' ? '✓ Sent' : '○ Scheduled'}
+                        <span className="text-[8px] opacity-80">{timeStr}</span>
+                      </span>
+                      <span className="truncate mt-0.5">{p.content}</span>
+                    </div>
+                  );
+                })}
                 {dayPosts.length > 2 && <div className="text-[10px] text-white/40 font-bold ml-1">+{dayPosts.length - 2} more</div>}
               </div>
             </div>

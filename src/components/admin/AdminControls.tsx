@@ -23,9 +23,29 @@ export const AdminControls = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    (window as any).openAdmin = (view: AdminView, item?: any) => {
+    (window as any).openAdmin = (view: AdminView, item?: any, targetFieldId?: string) => {
       setActiveView(view);
       setSelectedItem(item || null);
+      
+      if (targetFieldId) {
+        let attempts = 0;
+        const checkExist = setInterval(() => {
+          const el = document.getElementById(targetFieldId);
+          if (el) {
+            clearInterval(checkExist);
+            // Wait longer (300ms) to ensure Radix UI's autofocus doesn't override us
+            setTimeout(() => {
+              el.scrollIntoView({ behavior: "auto", block: "center" });
+              el.focus();
+              el.classList.add("ring-2", "ring-[rgb(0,167,157)]", "ring-inset");
+              setTimeout(() => el.classList.remove("ring-2", "ring-[rgb(0,167,157)]", "ring-inset"), 2000);
+            }, 300);
+          } else if (attempts > 50) { // Give up after 2.5 seconds
+            clearInterval(checkExist);
+          }
+          attempts++;
+        }, 50);
+      }
     };
   }, []);
 

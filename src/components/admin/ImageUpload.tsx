@@ -97,7 +97,7 @@ export const ImageUpload = ({ value, onChange, label, className }: ImageUploadPr
                   <CameraIcon className="text-white/20 group-hover/btn:text-[rgb(0,167,157)]" size={20} />
                 </div>
                 <span className="text-xs font-bold text-white/30 group-hover/btn:text-white/50 transition-colors uppercase tracking-widest">
-                  Upload Project Cover
+                  Upload {label ? label : "Image"}
                 </span>
               </>
             )}

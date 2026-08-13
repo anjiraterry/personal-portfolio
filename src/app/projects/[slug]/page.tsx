@@ -21,9 +21,9 @@ export default function ProjectDetailPage({ params }: Props) {
   
   const project = PROJECTS.find((p: any) => p.slug === slug);
   
-  const openAdmin = (view: any, item?: any) => {
+  const openAdmin = (view: any, item?: any, field?: string) => {
     if (typeof window !== "undefined" && (window as any).openAdmin) {
-      (window as any).openAdmin(view, item);
+      (window as any).openAdmin(view, item, field);
     }
   };
 
@@ -95,7 +95,7 @@ export default function ProjectDetailPage({ params }: Props) {
         {/* Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           {project.metrics?.map((m: any, i: number) => (
-            <EditableSection key={m.label || i} onEdit={() => openAdmin("project", project)} label="Metrics">
+            <EditableSection key={m.label || i} onEdit={() => openAdmin("project", project, "admin-field-metrics")} label="Metrics">
               <BentoCard className="text-center h-full">
                 <div className="font-display font-bold text-2xl mb-1"
                   style={{ background: "linear-gradient(135deg, rgb(0,167,157), rgb(0,220,200))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -111,21 +111,21 @@ export default function ProjectDetailPage({ params }: Props) {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main content */}
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            <EditableSection onEdit={() => openAdmin("project", project)} label="Overview" className="md:col-span-2">
+            <EditableSection onEdit={() => openAdmin("project", project, "admin-field-overview")} label="Overview" className="md:col-span-2">
               <BentoCard>
                 <h2 className="font-display font-bold text-white/90 text-xl mb-3">Overview</h2>
                 <p className="text-white/50 text-sm leading-relaxed whitespace-pre-wrap">{project.overview}</p>
               </BentoCard>
             </EditableSection>
 
-            <EditableSection onEdit={() => openAdmin("project", project)} label="Architecture">
+            <EditableSection onEdit={() => openAdmin("project", project, "admin-field-architecture")} label="Architecture">
               <BentoCard className="h-full">
                 <h2 className="font-display font-bold text-white/90 text-xl mb-3">Architecture</h2>
                 <p className="text-white/50 text-sm leading-relaxed whitespace-pre-wrap">{project.architecture}</p>
               </BentoCard>
             </EditableSection>
 
-            <EditableSection onEdit={() => openAdmin("project", project)} label="Challenges">
+            <EditableSection onEdit={() => openAdmin("project", project, "admin-field-challenges")} label="Challenges">
               <BentoCard className="h-full">
                 <h2 className="font-display font-bold text-white/90 text-xl mb-4">Key Challenges</h2>
                 <ul className="space-y-3">
@@ -144,8 +144,8 @@ export default function ProjectDetailPage({ params }: Props) {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4">
-            <EditableSection onEdit={() => openAdmin("project", project)} label="Tech Stack">
+          <div className="flex flex-col gap-6">
+            <EditableSection onEdit={() => openAdmin("project", project, "admin-field-tech")} label="Tech Stack" autoHeight>
               <BentoCard>
                 <h3 className="font-display font-semibold text-white/80 text-sm mb-3">Tech Stack</h3>
                 <div className="flex flex-wrap gap-2">
@@ -156,7 +156,7 @@ export default function ProjectDetailPage({ params }: Props) {
               </BentoCard>
             </EditableSection>
 
-            <EditableSection onEdit={() => openAdmin("project", project)} label="Links">
+            <EditableSection onEdit={() => openAdmin("project", project, "admin-field-links")} label="Links" autoHeight>
               <BentoCard>
                 <h3 className="font-display font-semibold text-white/80 text-sm mb-3">Links</h3>
                 <div className="space-y-2">

@@ -87,13 +87,15 @@ serve(async (req) => {
           if (currentQueueCount < 5) {
             const needed = 10 - currentQueueCount;
             
-            // Get next scheduled posts
+            // Get next scheduled posts, making sure to ONLY pick up posts from today onwards
+            const todayStr = new Date().toISOString().split('T')[0];
             const { data: upcomingPosts, error: dbErr } = await supabase
               .from('social_posts')
               .select('*')
               .eq('platform', platform.name)
               .eq('status', 'scheduled')
               .is('buffer_post_id', null)
+              .gte('scheduled_date', todayStr)
               .order('scheduled_date', { ascending: true })
               .order('scheduled_time', { ascending: true })
               .limit(needed);

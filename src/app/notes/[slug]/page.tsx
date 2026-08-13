@@ -6,6 +6,9 @@ import { PERSONAL, NOTES } from "@/data/portfolio";
 import { NOTES_CONTENT } from "@/data/notes_content";
 import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/utils";
+import { createServerSupabaseClient } from "@/supabase/server";
+import { ShareButtons } from "@/components/ui/ShareButtons";
+import { NoteAdminActions } from "@/components/admin/NoteAdminActions";
 
 interface NotePageProps {
   params: Promise<{ slug: string }>;
@@ -13,18 +16,50 @@ interface NotePageProps {
 
 export async function generateMetadata({ params }: NotePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const note = NOTES.find((n) => n.slug === slug);
+  const supabase = createServerSupabaseClient();
+  const { data: note } = await supabase.from('notes').select('title').eq('slug', slug).single();
+  const staticNote = NOTES.find((n) => n.slug === slug);
+  const title = note?.title || staticNote?.title;
+  
   return {
-    title: note ? `${note.title} | Terry Agbo` : "Note Not Found",
+    title: title ? `${title} | Terry Agbo` : "Note Not Found",
   };
+}
+
+function parseMarkdownToHtml(text: string) {
+  if (!text) return "";
+  
+  // Parse markdown bold/italics globally first, even if there are <p> tags
+  // because old notes might have <p> but still contain ** raw markdown
+  let parsed = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  if (parsed.includes("<p>")) return parsed;
+  
+  return parsed
+    .split(/\n/)
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => `<p>${line}</p>`)
+    .join('\n');
 }
 
 export default async function NoteDetailPage({ params }: NotePageProps) {
   const { slug } = await params;
-  const note = NOTES.find((n) => n.slug === slug);
-  const content = NOTES_CONTENT[slug];
+  const supabase = createServerSupabaseClient();
+  
+  // Fetch from DB
+  const { data: dbNote } = await supabase.from('notes').select('*').eq('slug', slug).single();
+  
+  // Fallbacks
+  const staticNote = NOTES.find((n) => n.slug === slug);
+  const staticContent = NOTES_CONTENT[slug];
 
-  if (!note || !content) {
+  const note = dbNote || staticNote;
+  const contentToRender = dbNote?.content || staticContent;
+
+  if (!note || (!dbNote?.content && !staticContent)) {
     notFound();
   }
 
@@ -40,15 +75,17 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
         {/* Article Header */}
         <header className="mb-16">
           <div className="flex items-center gap-3 mb-6">
-            <span className="px-3 py-1 rounded-full bg-[rgb(0,167,157,0.1)] text-[rgb(0,200,188)] text-[10px] font-bold uppercase tracking-widest border border-[rgb(0,167,157,0.2)]">
-              {note.category}
-            </span>
+            {note.category && (
+              <span className="px-3 py-1 rounded-full bg-[rgb(0,167,157,0.1)] text-[rgb(0,200,188)] text-[10px] font-bold uppercase tracking-widest border border-[rgb(0,167,157,0.2)]">
+                {note.category}
+              </span>
+            )}
             <div className="flex items-center gap-2 text-white/20 text-[10px] font-bold uppercase tracking-widest">
               <Calendar size={12} />
               <span>{formatDate(note.date)}</span>
               <span className="mx-1">•</span>
               <Clock size={12} />
-              <span>{note.readTime} read</span>
+              <span>{note.read_time || note.readTime} read</span>
             </div>
           </div>
           
@@ -68,25 +105,28 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
             </div>
             
             <div className="flex gap-2">
-              <button className="p-2.5 rounded-xl bg-white/[0.04] text-white/40 hover:text-[rgb(0,167,157)] transition-colors">
-                <Share2 size={18} />
-              </button>
-              <button className="p-2.5 rounded-xl bg-white/[0.04] text-white/40 hover:text-[rgb(0,167,157)] transition-colors">
-                <Twitter size={18} />
-              </button>
+              <NoteAdminActions note={note} />
+              <ShareButtons title={note.title} />
             </div>
           </div>
         </header>
 
+        {/* Cover Image */}
+        {note.image && (
+          <div className="mb-12 rounded-3xl overflow-hidden border border-white/10 relative aspect-[21/9] bg-white/[0.02]">
+            <img src={note.image} alt={note.title} className="w-full h-full object-cover" />
+          </div>
+        )}
+
         {/* Article Content */}
         <article 
           className="prose prose-invert prose-teal max-w-none mb-24"
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(contentToRender || "") }}
         />
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-20 border-t border-white/[0.05] pt-12">
-          {note.tags.map(tag => (
+          {(note.tags || []).map((tag: string) => (
             <span key={tag} className="px-3 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] text-white/30 text-xs font-medium">
               #{tag}
             </span>

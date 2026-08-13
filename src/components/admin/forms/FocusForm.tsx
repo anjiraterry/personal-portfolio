@@ -7,7 +7,9 @@ import { useAuth } from "@/components/admin/AdminProvider";
 import { Loader2, Trash2, Target, Lightbulb, Image as ImageIcon, Code2, X } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "../ImageUpload";
+import { DocumentUpload } from "../DocumentUpload";
 import { TagInput } from "../TagInput";
+import { RichTextEditor } from "./RichTextEditor";
 import { useFormDraft } from "./useFormDraft";
 
 const DEFAULT_FOCUS = {
@@ -18,7 +20,11 @@ const DEFAULT_FOCUS = {
   is_current: false,
   image: "",
   tags: [],
-  insights: []
+  insights: [],
+  slug: "",
+  content: "",
+  pdf_url: "",
+  slides_url: ""
 };
 
 export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }) => {
@@ -82,16 +88,33 @@ export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }
           <Target size={12} /> Area Definition
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Title</label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
-            placeholder="e.g. Reasoning Agents"
-            required
-          />
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Title</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                title: e.target.value,
+                slug: area ? formData.slug : e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+              })}
+              className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+              placeholder="e.g. Reasoning Agents"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Slug</label>
+            <input
+              type="text"
+              value={formData.slug || ""}
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all font-mono"
+              placeholder="e.g. reasoning-agents"
+              required
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
@@ -129,16 +152,32 @@ export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }
         </div>
       </div>
 
-      {/* Visuals */}
+      {/* Visuals & Assets */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[rgb(0,167,157)] mb-2">
-          <ImageIcon size={12} /> Focus Visual
+          <ImageIcon size={12} /> Visuals & Assets
         </div>
+        
         <ImageUpload 
           value={formData.image} 
           onChange={(url) => setFormData({ ...formData, image: url })}
           label="Background Image (Optional)"
         />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <DocumentUpload 
+            value={formData.pdf_url} 
+            onChange={(url) => setFormData({ ...formData, pdf_url: url })}
+            label="Research Paper (PDF)"
+            accept=".pdf"
+          />
+          <DocumentUpload 
+            value={formData.slides_url} 
+            onChange={(url) => setFormData({ ...formData, slides_url: url })}
+            label="Slide Deck (PPT/Keynote/PDF)"
+            accept=".pdf,.ppt,.pptx,.key"
+          />
+        </div>
       </div>
 
       {/* Content */}
@@ -171,8 +210,17 @@ export const FocusForm = ({ area, onClose }: { area?: any, onClose: () => void }
           <textarea
             value={formData.insights?.join("\n") || ""}
             onChange={(e) => setFormData({ ...formData, insights: e.target.value.split("\n").filter(Boolean) })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-xs text-white min-h-[100px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none font-mono"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-xs text-white min-h-[100px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none font-mono custom-scrollbar"
             placeholder="Insight 1&#10;Insight 2..."
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[rgb(0,167,157)] ml-1">Full Research Content</label>
+          <RichTextEditor
+            value={formData.content || ""}
+            onChange={(content) => setFormData({ ...formData, content })}
+            placeholder="Write your research paper or detailed notes here..."
           />
         </div>
       </div>

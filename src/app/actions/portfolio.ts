@@ -323,3 +323,36 @@ export async function uploadImage(formData: FormData) {
     return { success: false, error: err.message || "Unauthorized" };
   }
 }
+
+const sanitizeHtml = (str: any) => {
+  if (typeof str !== 'string') return str;
+  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+};
+
+export async function sendMessage(data: any) {
+  try {
+    const supabase = createServerSupabaseClient();
+    const { error } = await supabase.from("messages").insert({
+      name: sanitizeHtml(data.name),
+      email: sanitizeHtml(data.email),
+      subject: sanitizeHtml(data.subject),
+      message: sanitizeHtml(data.message),
+      created_at: new Date().toISOString()
+    });
+    if (error) return formatDbError(error);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to send message" };
+  }
+}
+
+export async function getMessages() {
+  try {
+    const supabase = await ensureAuth();
+    const { data, error } = await supabase.from("messages").select("*").order("created_at", { ascending: false });
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Unauthorized" };
+  }
+}

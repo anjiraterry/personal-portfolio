@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, MapPin, Github, Plus } from "lucide-react";
+import { Mail, MapPin, Github, Plus, FileText } from "lucide-react";
 import { ResumeDownloadButton } from "@/components/ui/ResumeDownloadButton";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { EditableSection } from "@/components/admin/EditableSection";
@@ -17,9 +17,9 @@ export function ResumeClient() {
     education: EDUCATION 
   } = data;
 
-  const openAdmin = (view: any, item?: any) => {
+  const openAdmin = (view: any, item?: any, field?: string) => {
     if (typeof window !== "undefined" && (window as any).openAdmin) {
-      (window as any).openAdmin(view, item);
+      (window as any).openAdmin(view, item, field);
     }
   };
 
@@ -34,8 +34,8 @@ export function ResumeClient() {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-semibold tracking-[0.15em] uppercase" style={{ color: "rgb(0,167,157)" }}>
-                Curriculum Vitae
+              <span className="flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase" style={{ color: "rgb(0,167,157)" }}>
+                <FileText size={14} /> Curriculum Vitae
               </span>
             </div>
             <h1 className="font-display font-bold text-white/95"
@@ -70,7 +70,6 @@ export function ResumeClient() {
             {/* Experience */}
             <section>
               <h2 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-2">
-                <span className="w-8 h-px bg-[rgb(0,167,157)]" />
                 Work Experience
               </h2>
               <div className="space-y-8">
@@ -118,7 +117,6 @@ export function ResumeClient() {
             {/* Education */}
             <section>
               <h2 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-2">
-                <span className="w-8 h-px bg-[rgb(0,167,157)]" />
                 Education
               </h2>
               <div className="space-y-6">

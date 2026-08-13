@@ -41,7 +41,7 @@ export function Navigation() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-5 left-0 right-0 z-50"
+        className="fixed top-5 left-0 right-0 z-[100]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Pill container */}
@@ -56,12 +56,11 @@ export function Navigation() {
             <div className="flex items-center gap-4">
               {/* Logo mark */}
               <Link href="/" className="flex items-center gap-2 mr-2 pl-2 group">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
-                  style={{ background: "linear-gradient(135deg, rgb(0,87,79), rgb(0,167,157))" }}
-                >
-                  {PERSONAL.initials}
-                </div>
+                <img
+                  src="/logo-white.png"
+                  alt="Logo"
+                  className="h-6 w-auto object-contain brightness-0 invert"
+                />
               </Link>
             </div>
 
@@ -94,6 +93,50 @@ export function Navigation() {
                     </Link>
                   );
                 })}
+                {isAuthenticated && (
+                  <Link
+                    href="/admin/social"
+                    className={cn(
+                      "relative px-3.5 py-1.5 text-[13px] font-medium rounded-full transition-all duration-200",
+                      pathname.startsWith("/admin/social") ? "text-white" : "text-white/45 hover:text-white/75"
+                    )}
+                  >
+                    {pathname.startsWith("/admin/social") && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: "rgba(0,167,157,0.12)",
+                          border: "1px solid rgba(0,167,157,0.2)",
+                        }}
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                      />
+                    )}
+                    <span className="relative z-10">Social</span>
+                  </Link>
+                )}
+                {isAuthenticated && (
+                  <Link
+                    href="/admin/messages"
+                    className={cn(
+                      "relative px-3.5 py-1.5 text-[13px] font-medium rounded-full transition-all duration-200",
+                      pathname.startsWith("/admin/messages") ? "text-white" : "text-white/45 hover:text-white/75"
+                    )}
+                  >
+                    {pathname.startsWith("/admin/messages") && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: "rgba(0,167,157,0.12)",
+                          border: "1px solid rgba(0,167,157,0.2)",
+                        }}
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                      />
+                    )}
+                    <span className="relative z-10">Messages</span>
+                  </Link>
+                )}
               </nav>
 
               {/* CTA + Admin */}
@@ -158,6 +201,32 @@ export function Navigation() {
                   </Link>
                 );
               })}
+              {isAuthenticated && (
+                <Link
+                  href="/admin/social"
+                  className={cn(
+                    "block px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
+                    pathname.startsWith("/admin/social")
+                      ? "text-white bg-white/[0.06]"
+                      : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                  )}
+                >
+                  Social
+                </Link>
+              )}
+              {isAuthenticated && (
+                <Link
+                  href="/admin/messages"
+                  className={cn(
+                    "block px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
+                    pathname.startsWith("/admin/messages")
+                      ? "text-white bg-white/[0.06]"
+                      : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                  )}
+                >
+                  Messages
+                </Link>
+              )}
               <div className="mt-2 pt-2 border-t border-white/[0.06]">
                 <Link
                   href="/contact"

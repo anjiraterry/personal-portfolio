@@ -45,7 +45,11 @@ export function PostSlide({ post, platform }: { post: any, platform: string }) {
           )}>
             {post.status}
           </span>
-          <span className="text-[10px] text-white/30">{post.scheduled_time.substring(0,5)}</span>
+          <span className="text-[10px] text-white/30">
+            {post.status === "sent" && post.sent_at 
+              ? `Sent ${new Date(post.sent_at).toLocaleDateString()} at ${new Date(post.sent_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+              : post.scheduled_time?.substring(0,5) || ""}
+          </span>
         </div>
         
         {/* Actions (Hover) */}

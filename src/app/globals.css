@@ -263,6 +263,10 @@
     @apply list-none cursor-pointer relative;
   }
 
+  textarea {
+    @apply custom-scrollbar;
+  }
+
   [data-sonner-toast] {
     @apply font-primary;
   }
@@ -406,6 +410,16 @@
 @layer components {
   .container {
     @apply w-full h-full px-5 max-w-[1412px] 2xl:max-w-[1712px] m-auto flex flex-row justify-between items-center;
+  }
+
+  .prose p {
+    @apply mb-6 leading-relaxed text-white/80;
+  }
+  .prose strong {
+    @apply font-bold text-white;
+  }
+  .prose em {
+    @apply italic text-white/90;
   }
 }
 

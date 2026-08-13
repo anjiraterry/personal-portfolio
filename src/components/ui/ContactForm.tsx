@@ -5,16 +5,25 @@ import { motion } from "framer-motion";
 import { Send, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { sendMessage } from "@/app/actions/portfolio";
+import { toast } from "sonner";
+
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setStatus("success");
-    setTimeout(() => setStatus("idle"), 5000);
+    const result = await sendMessage(formData);
+    if (result.success) {
+      setStatus("success");
+      setTimeout(() => setStatus("idle"), 5000);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } else {
+      setStatus("error");
+      toast.error(result.error || "Failed to send message.");
+    }
   };
 
   if (status === "success") {
@@ -52,6 +61,8 @@ export function ContactForm() {
             id="name"
             type="text"
             required
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="John Doe"
             className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all"
           />
@@ -64,6 +75,8 @@ export function ContactForm() {
             id="email"
             type="email"
             required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder="john@example.com"
             className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all"
           />
@@ -78,6 +91,8 @@ export function ContactForm() {
           id="subject"
           type="text"
           required
+          value={formData.subject}
+          onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
           placeholder="AI Product Inquiry"
           className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all"
         />
@@ -91,6 +106,8 @@ export function ContactForm() {
           id="message"
           required
           rows={5}
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           placeholder="Tell me about your project..."
           className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all resize-none"
         />
@@ -110,7 +127,7 @@ export function ContactForm() {
           "Transmitting..."
         ) : (
           <>
-            Send Intelligence <Send size={16} />
+            Send Message <Send size={16} />
           </>
         )}
       </button>

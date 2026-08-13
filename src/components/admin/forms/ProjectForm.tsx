@@ -119,11 +119,12 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Category</label>
             <input
               type="text"
+              id="admin-field-category"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               placeholder="e.g. AI Agents"
@@ -136,6 +137,17 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
               value={formData.status}
               onChange={(val) => setFormData({ ...formData, status: val })}
               options={STATUS_OPTIONS.map(opt => ({ value: opt, label: opt }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Year</label>
+            <input
+              type="text"
+              id="admin-field-year"
+              value={formData.year || ""}
+              onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+              placeholder="e.g. 2024"
+              className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
             />
           </div>
         </div>
@@ -183,9 +195,10 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Project Overview</label>
           <textarea
+            id="admin-field-overview"
             value={formData.overview}
             onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[120px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[120px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none custom-scrollbar"
             placeholder="Describe the problem and your solution..."
           />
         </div>
@@ -193,9 +206,10 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">System Architecture</label>
           <textarea
+            id="admin-field-architecture"
             value={formData.architecture}
             onChange={(e) => setFormData({ ...formData, architecture: e.target.value })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[100px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[100px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none custom-scrollbar"
             placeholder="Explain the technical stack and data flow..."
           />
         </div>
@@ -208,9 +222,10 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
             <ListChecks size={12} /> Key Challenges
           </div>
           <textarea
+            id="admin-field-challenges"
             value={formData.challenges?.join("\n") || ""}
             onChange={(e) => setFormData({ ...formData, challenges: e.target.value.split("\n").filter(Boolean) })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[150px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[150px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none custom-scrollbar"
             placeholder="One challenge per line..."
           />
         </div>
@@ -220,6 +235,7 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
             <Trophy size={12} /> Project Metrics
           </div>
           <textarea
+            id="admin-field-metrics"
             value={formData.metrics?.map((m: any) => `${m.label}:${m.value}:${m.suffix || ""}`).join("\n") || ""}
             onChange={(e) => setFormData({ 
               ...formData, 
@@ -228,7 +244,7 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
                 return { label: label?.trim() || "", value: value?.trim() || "", suffix: suffix?.trim() || "" };
               }) 
             })}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[150px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none font-mono"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[150px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none font-mono custom-scrollbar"
             placeholder="Label:Value:Suffix (e.g. Users:10k:+)"
           />
         </div>
@@ -236,7 +252,7 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
 
       {/* 5. Tech & Links */}
       <section className="space-y-4 p-5 rounded-2xl bg-white/[0.02] border border-white/5">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6" id="admin-field-tech">
           <div className="space-y-1.5">
             <TagInput
               tags={formData.tech || []}
@@ -245,31 +261,30 @@ export const ProjectForm = ({ project, onClose }: { project?: any, onClose: () =
               label="Tech Stack"
             />
           </div>
-          
-          <div className="space-y-4">
-             <div className="grid grid-cols-1 gap-3">
-                <div className="relative">
-                  <GithubIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+          <div className="space-y-4" id="admin-field-links">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Live Demo URL</label>
                   <input
-                    type="text"
-                    value={formData.github}
-                    onChange={(e) => setFormData({ ...formData, github: e.target.value })}
-                    placeholder="GitHub Repo URL"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-3 py-2.5 text-xs text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
-                  />
-                </div>
-                <div className="relative">
-                  <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-                  <input
-                    type="text"
+                    type="url"
                     value={formData.demo}
                     onChange={(e) => setFormData({ ...formData, demo: e.target.value })}
-                    placeholder="Live Demo URL"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-3 py-2.5 text-xs text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+                    placeholder="https://..."
                   />
                 </div>
-             </div>
-          </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">GitHub URL</label>
+                  <input
+                    type="url"
+                    value={formData.github}
+                    onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+                    placeholder="https://github.com/..."
+                  />
+                </div>
+              </div>
+            </div>
         </div>
         
         <div className="flex items-center gap-2 pt-2">

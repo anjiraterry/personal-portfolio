@@ -59,6 +59,18 @@ export const PersonalForm = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
+
+
+      <div className="space-y-1">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-[rgb(0,167,157)]">Home Page Tagline</label>
+        <textarea
+          value={formData.tagline || ""}
+          onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+          className="w-full bg-[rgb(0,167,157,0.02)] border border-[rgb(0,167,157,0.2)] rounded-lg p-3 text-white min-h-[80px] focus:border-[rgb(0,167,157,0.5)] outline-none custom-scrollbar"
+          placeholder="I architect and ship AI-native products..."
+        />
+      </div>
+
       <div className="space-y-1">
         <label className="text-[10px] font-bold uppercase tracking-widest text-white/30">Bio</label>
         <textarea

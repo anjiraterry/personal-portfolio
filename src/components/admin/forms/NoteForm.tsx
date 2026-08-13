@@ -4,11 +4,12 @@ import { useState } from "react";
 import { upsertNote, deleteNote } from "@/app/actions/portfolio";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { useAuth } from "@/components/admin/AdminProvider";
-import { Loader2, Trash2, BookOpen, Calendar, Clock, Tag } from "lucide-react";
+import { Loader2, Trash2, BookOpen, Calendar, Clock, Tag, Wand2, X } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "../ImageUpload";
 import { TagInput } from "../TagInput";
 import { useFormDraft } from "./useFormDraft";
+import { RichTextEditor } from "./RichTextEditor";
 
 const DEFAULT_NOTE = {
   title: "",
@@ -17,6 +18,7 @@ const DEFAULT_NOTE = {
   category: "",
   read_time: "5 min",
   excerpt: "",
+  content: "",
   image: "",
   tags: []
 };
@@ -25,6 +27,55 @@ export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void })
   const { refreshData } = usePortfolio();
   const { confirmDelete } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showAutoFill, setShowAutoFill] = useState(false);
+  const [rawText, setRawText] = useState("");
+
+  const handleAutoFill = () => {
+    if (!rawText.trim()) return;
+    
+    const lines = rawText.split('\n');
+    let title = "";
+    let contentStartIdx = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line) {
+        title = line;
+        title = title.replace(/^#+\s*/, '');
+        contentStartIdx = i + 1;
+        break;
+      }
+    }
+    
+    const wordCount = rawText.trim().split(/\s+/).length;
+    const readTimeMins = Math.max(1, Math.ceil(wordCount / 200));
+    
+    const rawContentLines = lines.slice(contentStartIdx);
+    
+    const formattedContent = rawContentLines
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => {
+        let parsed = line
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>');
+        return `<p>${parsed}</p>`;
+      })
+      .join('\n');
+    
+    setFormData((prev: any) => ({
+      ...prev,
+      title: prev.title || title,
+      slug: prev.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      read_time: `${readTimeMins} min`,
+      content: prev.content ? prev.content + "\n" + formattedContent : formattedContent
+    }));
+    
+    setShowAutoFill(false);
+    setRawText("");
+    toast.success("Successfully extracted details from text");
+  };
+
   const [formData, setFormData, clearDraft] = useFormDraft(
     "draft_note",
     note ? {
@@ -80,9 +131,52 @@ export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void })
     <form onSubmit={handleSubmit} className="space-y-6 max-h-[75vh] overflow-y-auto pr-2 no-scrollbar">
       {/* Header Info */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[rgb(0,167,157)] mb-2">
-          <BookOpen size={12} /> Note Content
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[rgb(0,167,157)]">
+            <BookOpen size={12} /> Note Content
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAutoFill(!showAutoFill)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[rgb(0,167,157,0.1)] hover:bg-[rgb(0,167,157,0.2)] border border-[rgb(0,167,157,0.2)] text-[rgb(0,167,157)] text-[10px] font-bold uppercase tracking-widest transition-all"
+          >
+            <Wand2 size={12} /> Paste Raw Text
+          </button>
         </div>
+
+        {showAutoFill && (
+          <div className="bg-[rgb(0,167,157,0.05)] border border-[rgb(0,167,157,0.2)] rounded-xl p-4 space-y-3 mb-6 relative">
+            <button 
+              type="button" 
+              onClick={() => setShowAutoFill(false)}
+              className="absolute top-2 right-2 p-1 text-[rgb(0,167,157)] hover:text-white transition-colors"
+            >
+              <X size={14} />
+            </button>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[rgb(0,167,157)]">
+              Auto-Fill Magic
+            </div>
+            <p className="text-xs text-white/50">
+              Paste your raw article here. We'll extract the title from the first line, calculate read time, and format the rest for the editor!
+            </p>
+            <textarea
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
+              className="w-full bg-black/40 border border-[rgb(0,167,157,0.2)] rounded-lg p-3 text-sm text-white min-h-[120px] focus:border-[rgb(0,167,157,0.5)] outline-none transition-all resize-y"
+              placeholder="Paste article text here..."
+            />
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleAutoFill}
+                disabled={!rawText.trim()}
+                className="bg-[rgb(0,167,157)] text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-[rgb(0,180,170)] transition-all disabled:opacity-50"
+              >
+                Extract Details
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-1.5">
@@ -120,6 +214,7 @@ export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void })
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white focus:border-[rgb(0,167,157,0.4)] outline-none transition-all"
+              style={{ colorScheme: "dark" }}
             />
           </div>
           <div className="space-y-1.5">
@@ -151,6 +246,15 @@ export const NoteForm = ({ note, onClose }: { note?: any, onClose: () => void })
             onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
             className="w-full bg-white/[0.03] border border-white/10 rounded-xl p-3 text-sm text-white min-h-[80px] focus:border-[rgb(0,167,157,0.4)] outline-none transition-all resize-none"
             placeholder="Short summary of the note..."
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 ml-1">Content</label>
+          <RichTextEditor
+            value={formData.content || ""}
+            onChange={(val) => setFormData({ ...formData, content: val })}
+            placeholder="Start writing your note here..."
           />
         </div>
 

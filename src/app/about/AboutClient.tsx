@@ -26,9 +26,9 @@ export function AboutClient() {
   const [activeTab, setActiveTab] = useState<"stack" | "expertise">("stack");
   const [copied, setCopied] = useState(false);
 
-  const openAdmin = (view: any, item?: any) => {
+  const openAdmin = (view: any, item?: any, field?: string) => {
     if (typeof window !== "undefined" && (window as any).openAdmin) {
-      (window as any).openAdmin(view, item);
+      (window as any).openAdmin(view, item, field);
     }
   };
 
@@ -196,7 +196,21 @@ export function AboutClient() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
               >
-                <EditableSection onEdit={() => openAdmin("experience", exp)} label="Experience">
+                <EditableSection 
+                  onEdit={() => openAdmin("experience", exp)} 
+                  onDelete={() => {
+                    confirmDelete({
+                      title: "Delete Experience",
+                      label: exp.company,
+                      onConfirm: async () => {
+                        const { deleteExperience } = await import("@/app/actions/portfolio");
+                        await deleteExperience(exp.id);
+                        await refreshData();
+                      }
+                    });
+                  }}
+                  label="Experience"
+                >
                   <BentoCard>
                     <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
                       <div>

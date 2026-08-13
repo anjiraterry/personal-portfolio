@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -44,7 +44,7 @@ import { useAuth } from "@/components/admin/AdminProvider";
 
 export default function HomePage() {
   const { data, refreshData } = usePortfolio();
-  const { confirmDelete } = useAuth();
+  const { isAuthenticated, confirmDelete } = useAuth();
   
   const handleDelete = (action: Function, id: string, label: string, itemLabel?: string) => {
     if (!id) return;
@@ -82,10 +82,14 @@ export default function HomePage() {
   const [showProjectInfo, setShowProjectInfo] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Stable ref for project count so callbacks never go stale
+  const projectsLenRef = useRef(PROJECTS.length);
+  useEffect(() => { projectsLenRef.current = PROJECTS.length; }, [PROJECTS.length]);
+
   // Helper for admin
-  const openAdmin = (view: any, item?: any) => {
+  const openAdmin = (view: any, item?: any, field?: string) => {
     if (typeof window !== "undefined" && (window as any).openAdmin) {
-      (window as any).openAdmin(view, item);
+      (window as any).openAdmin(view, item, field);
     }
   };
 
@@ -99,11 +103,11 @@ export default function HomePage() {
 
   // Project Slider Logic
   const nextProject = useCallback(() => {
-    setProject(([prev]) => [(prev + 1) % PROJECTS.length, 1]);
+    setProject(([prev]) => [(prev + 1) % projectsLenRef.current, 1]);
   }, []);
 
   const prevProject = useCallback(() => {
-    setProject(([prev]) => [(prev - 1 + PROJECTS.length) % PROJECTS.length, -1]);
+    setProject(([prev]) => [(prev - 1 + projectsLenRef.current) % projectsLenRef.current, -1]);
   }, []);
 
   const contentVariants = {
@@ -129,25 +133,30 @@ export default function HomePage() {
     })
   };
 
+  // Pause auto-advance while the info panel is open (user is reading)
   useEffect(() => {
+    if (showProjectInfo) return;
     const timer = setInterval(nextProject, 10000);
     return () => clearInterval(timer);
-  }, [nextProject]);
+  }, [nextProject, showProjectInfo]);
 
   return (
     <div className="min-h-screen pt-[100px] pb-12 flex flex-col">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 lg:grid-rows-3 gap-6 lg:h-[calc(100vh-140px)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 lg:grid-rows-3 gap-6 lg:h-[max(750px,calc(100vh-140px))]">
           {/* Intro Card */}
           <div className="md:col-span-2 lg:col-span-3 h-[280px] md:h-[320px] lg:h-full">
             <EditableSection onEdit={() => openAdmin("personal")} label="Intro">
-              <BentoCard gradient className="flex flex-col justify-center h-full">
-                <h1 className="font-display font-bold text-white/95 mb-4 leading-tight" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", letterSpacing: "-0.04em" }}>
-                  Hi, I&apos;m {PERSONAL.name.split(" ")[0]} —
-                </h1>
-                <p className="text-white/40 text-lg md:text-xl leading-relaxed max-w-xl">
-                  {PERSONAL.roles[0]}, currently building at <span className="text-white/80 border-b border-white/20">SW Global</span> based in {PERSONAL.location}
-                </p>
+              <BentoCard gradient noPadding className="flex flex-col justify-center h-full relative overflow-hidden">
+                <div className="p-4 md:p-6 z-10 flex flex-col justify-center h-full">
+                  <h1 className="font-display font-bold text-white/95 mb-4 leading-tight" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", letterSpacing: "-0.04em" }}>
+                    Hi, I&apos;m {PERSONAL.name.split(" ")[0]}
+                  </h1>
+                  <p className="text-white/40 text-lg md:text-xl leading-relaxed max-w-xl">
+                    {PERSONAL.roles[0]}, currently building at <span className="text-white/80 border-b border-white/20">SW Global</span> based in {PERSONAL.location}
+                  </p>
+                </div>
+                <img src="/logo-white.png" alt="Logo" className="absolute  right-0 -bottom-2  h-[90%] w-auto object-contain opacity-[0.04] pointer-events-none z-0" />
               </BentoCard>
             </EditableSection>
           </div>
@@ -385,12 +394,20 @@ export default function HomePage() {
                 <div className="flex flex-wrap gap-1.5 overflow-y-auto custom-scrollbar pr-1">
                   {activeTab === "stack" ? 
                     TECH_STACK.map((tech, i) => (
-                      <div key={tech.id || tech.name} onClick={() => openAdmin("tech", tech)} className="cursor-pointer">
+                      <div 
+                        key={tech.id || tech.name} 
+                        onClick={isAuthenticated ? () => openAdmin("tech", tech) : undefined} 
+                        className={isAuthenticated ? "cursor-pointer" : ""}
+                      >
                         <TechBadge name={tech.name} index={i} />
                       </div>
                     )) : 
                     EXPERTISE.map((item, i) => (
-                      <div key={item.id || item.name} onClick={() => openAdmin("expertise", item)} className="cursor-pointer">
+                      <div 
+                        key={item.id || item.name} 
+                        onClick={isAuthenticated ? () => openAdmin("expertise", item) : undefined} 
+                        className={isAuthenticated ? "cursor-pointer" : ""}
+                      >
                         <TechBadge name={item.name} index={i} variant="teal" />
                       </div>
                     ))
