@@ -22,6 +22,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { BentoCard } from "@/components/bento/BentoCard";
 import { TechBadge } from "@/components/ui/TechBadge";
 import { ExperienceTimeline } from "@/components/sections/ExperienceTimeline";
@@ -142,7 +143,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pt-[100px] pb-12 flex flex-col">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+      <PageTransition className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 lg:grid-rows-3 gap-6 lg:h-[max(750px,calc(100vh-140px))]">
           {/* Intro Card */}
           <div className="md:col-span-2 lg:col-span-3 h-[280px] md:h-[320px] lg:h-full">
@@ -436,7 +437,7 @@ export default function HomePage() {
             </EditableSection>
           </div>
         </div>
-      </div>
+      </PageTransition>
     </div>
   );
 }

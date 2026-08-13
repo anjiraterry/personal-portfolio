@@ -7,6 +7,7 @@ import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { EditableSection } from "@/components/admin/EditableSection";
 import { useAuth } from "@/components/admin/AdminProvider";
 import { ProjectCard } from "@/components/ui/ProjectCard";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { deleteProject } from "@/app/actions/portfolio";
 import { toast } from "sonner";
 
@@ -49,7 +50,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen pt-28 pb-24">
-      <div className="max-w-7xl mx-auto px-6">
+      <PageTransition className="max-w-7xl mx-auto px-6">
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -128,7 +129,7 @@ export default function ProjectsPage() {
             <p className="text-lg">No projects in this category yet.</p>
           </div>
         )}
-      </div>
+      </PageTransition>
     </div>
   );
 }

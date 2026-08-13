@@ -3,6 +3,7 @@ import { fetchSocialPosts } from "@/lib/data-fetcher";
 import { fetchSocialTokens, fetchSchedulerLogs } from "@/lib/social-fetcher";
 import { createServerSupabaseClient } from "@/supabase/server";
 import { redirect } from "next/navigation";
+import { PageTransition } from "@/components/ui/PageTransition";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -36,7 +37,7 @@ export default async function SocialAdminPage() {
 
   return (
     <div className="min-h-screen bg-black text-white pt-32 pb-12 px-4 sm:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <PageTransition className="max-w-7xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-display font-bold">Social Media Manager</h1>
           <p className="text-white/50 text-sm mt-2">Manage and schedule posts across Twitter and LinkedIn.</p>
@@ -49,7 +50,7 @@ export default async function SocialAdminPage() {
           lastRunAt={lastRun}
           initialIsPaused={isPaused}
         />
-      </div>
+      </PageTransition>
     </div>
   );
 }

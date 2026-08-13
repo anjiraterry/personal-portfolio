@@ -152,7 +152,7 @@ export default async function NoteDetailPage({ params }: NotePageProps) {
             </a>
           </div>
         </div>
-      </div>
+      </PageTransition>
     </div>
   );
 }

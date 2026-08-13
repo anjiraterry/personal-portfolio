@@ -7,6 +7,7 @@ import { ArrowRight, MapPin, Calendar, Code2, Brain, Layers, Mail, Download, Che
 import { TechBadge } from "@/components/ui/TechBadge";
 import { BentoCard } from "@/components/bento/BentoCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { ResumeDownloadButton } from "@/components/ui/ResumeDownloadButton";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { EditableSection } from "@/components/admin/EditableSection";
@@ -42,7 +43,7 @@ export function AboutClient() {
 
   return (
     <div className="min-h-screen pt-28 pb-24">
-      <div className="max-w-7xl mx-auto px-6">
+      <PageTransition className="max-w-7xl mx-auto px-6">
 
         {/* Header */}
         <motion.div
@@ -328,8 +329,7 @@ export function AboutClient() {
             </div>
           </BentoCard>
         </div>
-
-      </div>
+      </PageTransition>
     </div>
   );
 }

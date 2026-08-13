@@ -117,9 +117,14 @@ export function ContactForm() {
           placeholder="AI Product Inquiry"
           className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all"
         />
-      </div>
+      </motion.div>
 
-      <div className="space-y-2">
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="space-y-2"
+      >
         <label htmlFor="message" className="text-xs font-bold text-white/30 uppercase tracking-widest ml-1">
           Message
         </label>
@@ -132,7 +137,7 @@ export function ContactForm() {
           placeholder="Tell me about your project..."
           className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder:text-white/10 focus:outline-none focus:border-[rgb(0,167,157,0.5)] focus:bg-white/[0.05] transition-all resize-none"
         />
-      </div>
+      </motion.div>
 
       <button
         type="submit"
@@ -156,7 +161,6 @@ export function ContactForm() {
       <p className="text-center text-[10px] text-white/20 uppercase tracking-wider">
         By sending, you agree to the intergalactic protocol of polite communication.
       </p>
-      </motion.div>
     </motion.form>
   );
 }
